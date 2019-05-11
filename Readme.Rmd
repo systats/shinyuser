@@ -1,10 +1,11 @@
-openshiny
-================
+---
+title: "openshiny"
+output: github_document
+---
 
-Minimal Example of
-`openshiny`
+Minimal Example of `openshiny`
 
-``` r
+```{r, eval = F}
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse,
                 RSQLite, dbplyr, shinyjs, shinytoastr)
 
@@ -65,3 +66,4 @@ server <- function(input, output) {
 ### Main
 shinyApp(ui, server)
 ```
+

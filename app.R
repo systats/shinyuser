@@ -1,14 +1,9 @@
-openshiny
-================
+#devtools::load_all()
+#devtools::document()
 
-Minimal Example of
-`openshiny`
+pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, DT,
+                RSQLite, dbplyr, R6, shinyjs, shinytoastr)
 
-``` r
-pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse,
-                RSQLite, dbplyr, shinyjs, shinytoastr)
-
-# devtools::install_github("systats/openshiny)
 library(openshiny)
 # options(shiny.maxRequestSize=200*1024^2) 
 
@@ -64,4 +59,3 @@ server <- function(input, output) {
 
 ### Main
 shinyApp(ui, server)
-```
