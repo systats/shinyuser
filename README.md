@@ -1,28 +1,31 @@
-openshiny
+shinyuser
 ================
 
 > Alpha version 0.0.0.1 (under active development)
 
 This is a package for shiny apps that delivers
 
-1.  user login/signin
-2.  user managment/admin panel
+1.  user login & signin
+2.  admin panel with user managment
 
 Minimal Example of
-`openshiny`
+`shinyuser`
 
 ``` r
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse,
                 RSQLite, dbplyr, shinyjs, shinytoastr)
 
-# devtools::install_github("systats/openshiny)
-library(openshiny)
+# devtools::install_github("systats/shinyuser)
+library(shinyuser)
 check_user_db()
 
 ui <- dashboardPage(
   dashboardHeader(
     inverted = T, 
-    tagList(admin_ui("admin"), login_ui("login")) 
+    tagList(
+      shinyuser::admin_ui("admin"), 
+      shinyuser::login_ui("login")
+    ) 
   ),
   dashboardSidebar(
     side = "left", size = "", inverted = T,
@@ -45,8 +48,8 @@ ui <- dashboardPage(
 server <- function(input, output) {
   
   ### This is neccessary for login and admin mod (do not chance)
-  user <- callModule(login_server, "login") 
-  callModule(admin_server, "admin", user) 
+  user <- callModule(shinyuser::login_server, "login") 
+  callModule(shinyuser::admin_server, "admin", user) 
   
   # < ... Your Code ... >
 }
