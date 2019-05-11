@@ -63,7 +63,7 @@ login_ui <- function(id){
 # });
 
 #' @export
-login_server = function(input, output, session, users){
+login_server = function(input, output, session){
   
   log <- reactiveValues(
     state = "login", #login
@@ -87,6 +87,17 @@ login_server = function(input, output, session, users){
     log$state <- "signin"
   })
   
+  users <- reactive({
+    log$state
+    
+    con <- dbConnect(SQLite(), "data/user.db") # Creates database file test.db
+    out <- con %>%
+      tbl("users")  %>%
+      as_tibble
+    
+    dbDisconnect(con)
+    return(out)
+  })
   
   user <- reactive({
     input$signin

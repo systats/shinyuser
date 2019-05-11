@@ -1,10 +1,10 @@
-#devtools::load_all()
+devtools::load_all()
 #devtools::document()
 
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, DT,
                 RSQLite, dbplyr, R6, shinyjs, shinytoastr)
 
-library(openshiny)
+# library(openshiny)
 # options(shiny.maxRequestSize=200*1024^2) 
 
 ### Needed for user db initialization
@@ -38,22 +38,10 @@ ui <- dashboardPage(
 server <- function(input, output) {
   
   ### This is neccessary for login and admin mod (do not chance)
-  users <- reactive({
-    user()
-    con <- dbConnect(SQLite(), "data/user.db")
-    out <- con %>% 
-      tbl("users") %>% 
-      as_tibble
-    dbDisconnect(con)
-    return(out)
-  })
-  
-  user <- callModule(login_server, "login", users) 
-  callModule(admin_server, "admin", users, user) 
-  ### End 
+  user <- callModule(login_server, "login") 
+  callModule(admin_server, "admin", user) 
   
   # < ... Your Code ... >
-  
   
 }
 

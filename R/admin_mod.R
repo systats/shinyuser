@@ -9,7 +9,7 @@ admin_ui = function(id){
 }
 
 #' @export
-admin_server = function(input, output, session, users, user){
+admin_server = function(input, output, session, user){
   
   log = reactiveValues(state = "")
 
@@ -20,7 +20,7 @@ admin_server = function(input, output, session, users, user){
   observeEvent(input$back ,{
     log$state <- ""
   })
-  
+
   output$admin_options <- renderUI({
     req(user())
     if(user()$role == "admin"){

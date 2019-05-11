@@ -3,6 +3,8 @@
 export(add_user_table_entry)
 export(admin_server)
 export(admin_ui)
+export(check_user_db)
+export(dbConnect)
 export(login_form)
 export(login_server)
 export(login_ui)
