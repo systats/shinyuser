@@ -1,6 +1,13 @@
 openshiny
 ================
 
+> Alpha version 0.0.0.1 (under active development)
+
+This is a package for shiny apps that delivers
+
+1.  user login/signin
+2.  user managment/admin panel
+
 Minimal Example of
 `openshiny`
 
