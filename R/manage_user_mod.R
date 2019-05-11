@@ -34,17 +34,20 @@ user_table_entry = function(.x, session){
   tagList(
     div(class = "fields",
         div(class = "three wide field",
-            .x$user
+          .x$user
         ),
         div(class = "three wide field",
-            .x$password
+          .x$password
+        ),
+        div(class = "one wide field",
+          actionButton(session$ns("{.x$user}_unhash"), class = "ui icon button", label = "",  icon = icon("eye"))
         ),
         div(class = "two wide field",
-            shiny.semantic::dropdown(session$ns(glue::glue("{.x$user}_role")), choices = c("admin", "user"), value = .x$role)
+          shiny.semantic::dropdown(session$ns(glue::glue("{.x$user}_role")), choices = c("admin", "user"), value = .x$role)
         ),
         div(class = "seven wide field"),
         div(class = "one wide field",
-            actionButton(session$ns(glue::glue("{.x$user}_remove")), class = "ui basic red icon button", label = "",  icon = icon("remove user"))
+          actionButton(session$ns(glue::glue("{.x$user}_remove")), class = "ui basic red icon button", label = "",  icon = icon("remove user"))
         )
     )
   )
@@ -127,6 +130,17 @@ manage_user_server = function(input, output, session){
       purrr::map(~{
         observeEvent(input[[glue::glue("{.x$user}_remove")]], {
           log$event_action <- "remove_user"
+          log$event_target <- .x$user
+        })
+      })
+  })
+  
+  observe({
+    users() %>%
+      split(1:nrow(.)) %>%
+      purrr::map(~{
+        observeEvent(input[[glue::glue("{.x$user}_unhash")]], {
+          log$event_action <- "unhash_password"
           log$event_target <- .x$user
         })
       })

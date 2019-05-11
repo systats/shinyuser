@@ -53,3 +53,7 @@ server <- function(input, output) {
 
 shinyApp(ui, server)
 ```
+
+The app will start up with a login/sign in modale.
+
+<img src = "screen_login.png" width = "50%">
