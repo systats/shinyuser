@@ -4,7 +4,7 @@ devtools::load_all()
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, DT,
                 RSQLite, dbplyr, R6, shinyjs, shinytoastr)
 
-# library(openshiny)
+# library(shinyuser)
 # options(shiny.maxRequestSize=200*1024^2) 
 
 ### Needed for user db initialization
