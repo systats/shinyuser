@@ -1,49 +1,57 @@
-devtools::load_all()
-#devtools::document()
+library(devtools)
+library(dplyr)
+library(stringr)
+library(shiny)
+library(shiny.semantic)
+library(semantic.dashboard)
+library(purrr)
+library(jsonlite)
+library(R6)
+# p_load(tidyverse, shiny, shiny.semantic, semantic.dashboard, 
+# purrr, jsonlite, R6, install = F)
 
-pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse, DT,
-                RSQLite, dbplyr, R6, shinyjs, shinytoastr)
+# devtools::document()
+# devtools::load_all()
 
-# library(shinyuser)
-# options(shiny.maxRequestSize=200*1024^2) 
-
-### Needed for user db initialization
-check_user_db()
-
-### UI
 ui <- dashboardPage(
   dashboardHeader(
-    inverted = T, 
-    tagList(admin_ui("admin"), login_ui("login")) 
+    inverted = T,
+    manager_ui("manager")
   ),
   dashboardSidebar(
     side = "left", size = "", inverted = T,
     sidebarMenu(
       div(class = "item",
-        h4(class = "ui inverted header", "Something")
-      ),
-      div(class = "item",
-        h4(class = "ui inverted header", "More of it")
+          h4(class = "ui inverted header", "Something")
       )
     )
   ),
   dashboardBody(
     div(class = "sixteen wide column",
-      "Why not?"
+      "Something great content"
     )
   )
 )
 
-### Server
 server <- function(input, output) {
   
-  ### This is neccessary for login and admin mod (do not chance)
-  user <- callModule(login_server, "login") 
-  callModule(admin_server, "admin", user) 
+  user <- callModule(login_server, "user")
+  callModule(manager_server, "manager", user)
   
-  # < ... Your Code ... >
+  output$main <- renderUI({
+    if(user()$status == 1){
+      ui
+    }
+  })
+  
+  observe({
+    glimpse(user())
+  })
+
+  # ....
+
   
 }
 
-### Main
-shinyApp(ui, server)
+
+shinyApp(meta_ui(), server)

@@ -1,0 +1,97 @@
+---
+title: "manager"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+```{r}
+devtools::document()
+devtools::load_all()
+pacman::p_load(tidyverse, R6, RSQLite)
+```
+
+
+### Init
+
+```{r}
+new <- user$new("data/users")
+```
+
+### Remove files
+
+```{r}
+#new$remove("root", F)
+#new$remove("root1", F)
+```
+
+
+### Create User
+
+```{r}
+new$load("root1")
+
+new$reset()
+
+new$username <- "root"
+new$password <- "2020"
+
+#new$sessions <- list(tibble(n = 10))
+new$update()
+
+new$reset()
+new$session
+```
+
+
+### Login
+
+```{r}
+new$session
+new$login("root", "2021")
+
+new$login("root1", "2020")
+new$session
+
+new$login("root", "2020")
+new$session
+new$logout()
+new$session
+```
+
+
+### Register
+
+```{r}
+new$register("root1234", "2020", "2020")
+new$register("root1", "20201", "2020")
+
+new$register("roo", "2020", "2020")
+new$register("", "2020", "2020")
+new$register(NULL, "2020", "2020")
+
+new$register("root1", "2020", "2020")
+new$session
+```
+
+
+
+```{r}
+con <- odbc::dbConnect(RSQLite::SQLite(), dbname = "data/user_stats.sqlite")
+ucon <- shiny.stats::initialize_connection(con, username = "root")
+RSQLite::dbListTables(ucon$db_connection)
+ucon$db_connection%>% tbl("user_log") %>% arrange(desc(time))
+ucon$db_connection%>% tbl("session_details")
+```
+
+
+
+
+
+
+
+

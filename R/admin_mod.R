@@ -1,71 +1,99 @@
 #' admin_ui
 #' @export
-admin_ui = function(id){
+admin_ui <- function(id){
   ns <- NS(id)
   tagList(
-    uiOutput(ns("admin_modal")),
-    uiOutput(ns("admin_options"))
+    div(class="ui modal", id = "admin-modal",
+      span(class = "ui header",
+        "Admin Panel"
+      ),
+      #actionButton(session$ns("back"), class = "ui right floated basic inverted circular icon button", label = "", icon = icon("remove")),
+      div(class = "scrolling content", #align = "left", style = "width: 80%; min-height: 100vh;",
+          div(class = "ui stackable grid",
+            div(class = "row",
+              div(class = "two wide column",
+                  shiny::actionButton(inputId = ns("NEW-user"), label = "", class = "ui green compact icon button", icon = icon("user plus"))
+              ),
+              div(class="four wide column",
+                  dropdown(name = "sortby", choices = c("role"), value = "role")
+              ),
+              div(class = "six wide column",
+                  uiOutput(ns("search_user_selection"))
+              )
+            ),
+            div(class = "row",
+              div(class = "sixteen wide column",
+                  shiny::uiOutput(ns("dev"))
+              )
+            )
+          )
+        )
+      )
   )
 }
 
+#' admin_server
 #' @export
-admin_server = function(input, output, session, user){
-  
-  log = reactiveValues(state = "")
+admin_server <- function(input, output, session, user_data){
 
-  observeEvent(input$admin ,{
-    log$state <- "admin"
+  ### show admin panel 
+  observeEvent(input$show, {
+    shinyjs::runjs("$('#admin-modal').modal('show');")
   })
   
-  observeEvent(input$back ,{
-    log$state <- ""
+  ### create new user
+  observeEvent(input$`NEW-user`, {
+    #browser()
+    new <- user$new("data/users")
+    new$username <- "NEW"
+    new$password <- ""
+    new$role <- "client"
+    new$update()
+    new$reset()
+  })
+  
+  ### load users + updating removed once
+  users <- reactive({
+    
+    out <- dir("data/users", full.names = T) %>%
+      map_dfr(jsonlite::fromJSON) %>%
+      #mutate(role = "admin") %>%
+      mutate(session_id = session$ns(username)) %>%
+      arrange(desc(ifelse(username == "NEW", 1, 0)))
+    
+    ### trigger reload
+    input$`NEW-user`
+    #input$`A-NEW-USER-remove`
+    out$username %>% purrr::map(~{  input[[paste0(.x, "-remove")]] })
+
+    out
+  })
+  
+  output$dev <- renderUI({
+    req(users())
+    users() %>%
+      split(1:nrow(.)) %>%
+      map(entry_ui)
+  })
+  
+  outputOptions(output, "dev", suspendWhenHidden = F)
+  
+  observe({
+    req(users())
+    users() %>%
+      split(1:nrow(.)) %>%
+      purrr::walk(~{ callModule(entry_server, .x$username, .x) })
+  })
+  
+  output$search_user_selection <- renderUI({
+    shiny.semantic::search_selection_choices(
+      name = session$ns("search_user"), 
+      choices = users()$username,
+      value = NULL, 
+      multiple = T
+    )
   })
 
-  output$admin_options <- renderUI({
-    req(user())
-    if(user()$role == "admin"){
-      actionButton(session$ns("admin"), class = "circular ui icon button", label = "", icon = icon("user"))
-    } else {
-      ""
-    }
-  })
-  
-  output$admin_modal <- renderUI({
-    if(log$state == "admin"){
-      tagList(
-        shiny::tags$style("#admin_dimmer{overflow-y:scroll;}"),
-        div(class="ui active page dimmer", id = "admin_dimmer",
-            div(class = "content", align = "left", style = "width: 80%; min-height: 100vh;",
-                div(class = "ui inverted segment",
-                    actionButton(session$ns("back"), class = "ui right floated basic inverted circular icon button", label = "", icon = icon("remove")), 
-                    span(class = "ui header",
-                         "Admin Panel"
-                    ),
-                    tabset(
-                      tabs = list(
-                        list(
-                          menu = "User Table",
-                          content = manage_user_ui(session$ns("user_tab"))
-                        ),
-                        list(
-                          menu = "Stats", 
-                          content = "1"
-                        ),
-                        list(
-                          menu = "Event Table",
-                          content = "" 
-                        )
-                      )
-                    )
-                )
-            )
-        )
-      )
-    } else {
-      return("")
-    }
-  })
-  
-  callModule(manage_user_server, "user_tab")
-  
 }
+
+
