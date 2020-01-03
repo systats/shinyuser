@@ -1,17 +1,17 @@
-rm(list = ls())
-# rm(list = ls())
 library(shiny)
 library(shiny.semantic)
+library(shinyjs)
 library(semantic.dashboard)
 library(dplyr)
 library(stringr)
 library(purrr)
 library(jsonlite)
 library(R6)
-# devtools::install_github("systats/shinyuser")
-library(shinyuser)
+library(RSQLite)
 # devtools::install_github("Appsilon/shiny.info")
 library(shiny.info)
+# devtools::install_github("systats/shinyuser")
+library(shinyuser)
 
 # devtools::document()
 # devtools::load_all()
@@ -45,6 +45,19 @@ server <- function(input, output) {
     if(user()$status == 1){
       ui
     }
+  })
+  
+  uc <- reactive({
+    req(user())
+    ### initalize shiny.stats
+    # creating user connection list and making sure required tables exist in DB
+    # observeEvent(input$`user-logout`, { shiny.stats::log_action(ucon(), "logout") })
+    con <- odbc::dbConnect(RSQLite::SQLite(), dbname = "data/user_stats.sqlite")
+    uc <- shiny.stats::initialize_connection(con, username = user()$username)
+    shiny.stats::log_login(uc)
+    shiny.stats::log_logout(uc)
+    shiny.stats::log_browser_version(input, uc)
+    uc
   })
   
   observe({

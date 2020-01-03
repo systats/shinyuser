@@ -206,10 +206,6 @@ login_server <- function(input, output, session){
     }
   })
   
-  ### initalize shiny.stats
-  # creating user connection list and making sure required tables exist in DB
-  # observeEvent(input$`user-logout`, { shiny.stats::log_action(ucon(), "logout") })
-  
   out <- reactive({
     
     input$logout
@@ -221,15 +217,7 @@ login_server <- function(input, output, session){
     input$password2
     input$username
     
-    if(is.null(new()$session$status == 0)) return(as.list(new()$session))
-
-    con <- odbc::dbConnect(RSQLite::SQLite(), dbname = "data/user_stats.sqlite")
-    uc <- shiny.stats::initialize_connection(con, username = new()$session$username)
-    shiny.stats::log_login(uc)
-    shiny.stats::log_logout(uc)
-    #shiny.stats::log_browser_version(input, uc)
-    
-    return(c(as.list(new()$session[-3]), uc))
+    as.list(new()$session)
   })
   
   return(out)
