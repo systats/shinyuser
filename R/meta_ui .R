@@ -16,7 +16,7 @@ meta_ui <- function(){
         #tags$link(rel = "stylesheet", type = "text/css", href = "layout.css"),
         #tags$script(src = "https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.4/numeral.min.js"),
         ### shiny.stats
-        shiny.stats::browser_info_js
+        #shiny.stats::browser_info_js
       ),
       
       login_ui("user"), 

@@ -8,8 +8,10 @@ library(purrr)
 library(jsonlite)
 library(R6)
 library(RSQLite)
+# install.packages("V8")
+library(V8)
 # devtools::install_github("Appsilon/shiny.info")
-library(shiny.info)
+# library(shiny.info)
 # devtools::install_github("systats/shinyuser")
 library(shinyuser)
 
@@ -47,18 +49,18 @@ server <- function(input, output) {
     }
   })
   
-  uc <- reactive({
-    req(user())
-    ### initalize shiny.stats
-    # creating user connection list and making sure required tables exist in DB
-    # observeEvent(input$`user-logout`, { shiny.stats::log_action(ucon(), "logout") })
-    con <- odbc::dbConnect(RSQLite::SQLite(), dbname = "data/user_stats.sqlite")
-    uc <- shiny.stats::initialize_connection(con, username = user()$username)
-    shiny.stats::log_login(uc)
-    shiny.stats::log_logout(uc)
-    shiny.stats::log_browser_version(input, uc)
-    uc
-  })
+  # uc <- reactive({
+  #   req(user())
+  #   ### initalize shiny.stats
+  #   # creating user connection list and making sure required tables exist in DB
+  #   # observeEvent(input$`user-logout`, { shiny.stats::log_action(ucon(), "logout") })
+  #   con <- odbc::dbConnect(RSQLite::SQLite(), dbname = "data/user_stats.sqlite")
+  #   uc <- shiny.stats::initialize_connection(con, username = user()$username)
+  #   shiny.stats::log_login(uc)
+  #   shiny.stats::log_logout(uc)
+  #   shiny.stats::log_browser_version(input, uc)
+  #   uc
+  # })
   
   observe({
     glimpse(user())
