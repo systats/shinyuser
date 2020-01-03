@@ -3,7 +3,7 @@
 meta_ui <- function(){
   shinyUI(
     shiny.semantic::semanticPage(
-      shinytoastr::useToastr(),
+      #shinytoastr::useToastr(),
       shinyjs::useShinyjs(),
       shinyjs::extendShinyjs(text =  "shinyjs.refresh = function() { history.go(0); }"),
       suppressDependencies("bootstrap"),
