@@ -20,7 +20,7 @@ meta_ui <- function(){
       ),
       
       login_ui("user"), 
-      uiOutput("main")
+      uiOutput("authorized")
     )
   )
 }

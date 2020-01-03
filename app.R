@@ -40,14 +40,13 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
+  ### User authentification
   user <- callModule(login_server, "user")
+  ### User managment
   callModule(manager_server, "manager", user)
-  
-  output$main <- renderUI({
-    if(user()$status == 1){
-      ui
-    }
-  })
+  ### Authorized content
+  output$authorized <- renderUI({ if(user()$status == 1) ui })
+  # observe({ glimpse(user()) })
   
   # uc <- reactive({
   #   req(user())
@@ -62,10 +61,6 @@ server <- function(input, output) {
   #   uc
   # })
   
-  observe({
-    glimpse(user())
-  })
-
   # ....
 
   

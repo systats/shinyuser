@@ -9,17 +9,18 @@ modularized solution.
 
 Features:
 
-1.  user’s data is saved as JSON file in `data/users`
-2.  R6 class user management
-3.  admin panel to edit user data
-4.  easy to integrate with `shiny.info`
+1.  User’s credentials are saved as JSON file in `data/users`
+2.  easy to integrate with `shiny.info` in order to log user actions
+3.  R6 class user management
+4.  admin panel to edit user data
+5.  tested with shinyapps.io
 
-Minimal Example of
+Minimal example of
 `shinyuser`
 
 ``` r
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse,
-                RSQLite, dbplyr, shinyjs, R6)
+                RSQLite, shinyjs, R6)
 
 ui <- dashboardPage(
   dashboardHeader(
@@ -36,29 +37,25 @@ ui <- dashboardPage(
   ),
   dashboardBody(
     div(class = "sixteen wide column",
-      "Something great content"
+      "Something great"
     )
   )
 )
 
 server <- function(input, output) {
   
-  ### User Authentification
+  ### User authentification
   user <- callModule(login_server, "user")
-  ### User Managment
+  ### User managment
   callModule(manager_server, "manager", user)
-  
-  output$main <- renderUI({
-    if(user()$status == 1){
-      ui
-    }
-  })
-  
-  observe({ glimpse(user()) })
+  ### Authorized content
+  output$authorized <- renderUI({ if(user()$status == 1) ui })
+  # observe({ glimpse(user()) })
 
   ### Your Code
-
 }
+
+shinyApp(meta_ui(), server)
 ```
 
 The app will start up with a login/sign in modal.
