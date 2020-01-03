@@ -61,4 +61,4 @@ shinyApp(ui, server)
 
 The app will start up with a login/sign in modale.
 
-<img src = "screen_login.png" width = "50%">
+<img src = "demo.gif" width = "80%">

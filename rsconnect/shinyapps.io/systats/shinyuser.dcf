@@ -1,0 +1,13 @@
+name: shinyuser
+title: shinyuser
+username:
+account: systats
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1626826
+bundleId: 2705294
+url: https://systats.shinyapps.io/shinyuser/
+when: 1578085737.06176
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .Rbuildignore|DESCRIPTION|main.html|main.Rmd|NAMESPACE|README.md|Readme.Rmd|man|R
