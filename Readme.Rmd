@@ -5,60 +5,61 @@ output: github_document
 
 > Alpha version 0.0.0.1 (under active development)
 
+This is a demonstration of how to implement user authentication directly in a shiny app. The core idea is to provide a simple, secure and modularized solution.  
 
-This is a package for shiny apps that delivers
+Features:
 
-1. user login & signin
-2. admin panel with user managment
+1. user's data is saved as JSON file in `data/users`
+2. R6 class user management
+2. admin panel to edit user data
+3. easy to integrate with `shiny.info`
 
 Minimal Example of `shinyuser`
 
 ```{r, eval = F}
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse,
-                RSQLite, dbplyr, shinyjs, shinytoastr)
-
-# devtools::install_github("systats/shinyuser)
-library(shinyuser)
-check_user_db()
+                RSQLite, dbplyr, shinyjs, R6)
 
 ui <- dashboardPage(
   dashboardHeader(
-    inverted = T, 
-    tagList(
-      shinyuser::admin_ui("admin"), 
-      shinyuser::login_ui("login")
-    ) 
+    inverted = T,
+    manager_ui("manager")
   ),
   dashboardSidebar(
     side = "left", size = "", inverted = T,
     sidebarMenu(
       div(class = "item",
-        h4(class = "ui inverted header", "Something")
-      ),
-      div(class = "item",
-        h4(class = "ui inverted header", "More of it")
+          h4(class = "ui inverted header", "Something")
       )
     )
   ),
   dashboardBody(
     div(class = "sixteen wide column",
-      "Why not?"
+      "Something great content"
     )
   )
 )
 
 server <- function(input, output) {
   
-  ### This is neccessary for login and admin mod (do not chance)
-  user <- callModule(shinyuser::login_server, "login") 
-  callModule(shinyuser::admin_server, "admin", user) 
+  ### User Authentification
+  user <- callModule(login_server, "user")
+  ### User Managment
+  callModule(manager_server, "manager", user)
   
-  # < ... Your Code ... >
-}
+  output$main <- renderUI({
+    if(user()$status == 1){
+      ui
+    }
+  })
+  
+  observe({ glimpse(user()) })
 
-shinyApp(ui, server)
+  ### Your Code
+
+}
 ```
 
-The app will start up with a login/sign in modale.
+The app will start up with a login/sign in modal.
 
-<img src = "demo.gif" width = "80%">
+ <img src = "demo.gif"> <!-- width = "80%" -->

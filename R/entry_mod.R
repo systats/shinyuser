@@ -5,7 +5,7 @@ entry_ui <- function(.x){
   tagList(
     div(class = "ui form",
         div(class = "inline fields",
-            div(class = "two wide field",
+            div(class = "one wide field",
                 simple_checkbox(ns("selected"), label = "", is_marked = F)
             ),
             div(class = "four wide field",
@@ -15,10 +15,10 @@ entry_ui <- function(.x){
                 shinyjs::disabled(shiny::textInput(ns("password"), "", placeholder = "Password",  value = .x$password))
                 #shiny::actionButton(inputId = ns("decrypt"), label = "", class = "ui compact icon button", icon = icon("eye")),
             ),
-            div(class = "four wide field",
-                dropdown(name = ns("role"), choices = c("admin", "client", "power-woman"), value = .x$role)
+            div(class = "six wide field",
+                dropdown(name = ns("role"), choices = c("admin", "client"), value = .x$role)
             ),
-            div(class = "two wide field",
+            div(class = "one wide field",
                 shiny::actionButton(inputId = ns("edit"), label = "", class = "ui compact icon button", icon = icon("edit")),
                 shinyjs::hidden(shiny::actionButton(inputId = ns("save"), label = "", class = "ui green compact icon button", icon = icon("save"))),
                 shinyjs::hidden(shiny::actionButton(inputId = ns("remove"), label = "", class = "ui basic red compact icon button", icon = icon("trash")))
