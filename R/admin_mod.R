@@ -9,26 +9,26 @@ admin_ui <- function(id){
       ),
       #actionButton(session$ns("back"), class = "ui right floated basic inverted circular icon button", label = "", icon = icon("remove")),
       div(class = "scrolling content", #align = "left", style = "width: 80%; min-height: 100vh;",
-          div(class = "ui stackable grid",
-            div(class = "row",
-              div(class = "two wide column",
-                  shiny::actionButton(inputId = ns("NEW-user"), label = "", class = "ui green compact icon button", icon = icon("user plus"))
-              ),
-              div(class="four wide column",
-                  dropdown(name = "sortby", choices = c("role"), value = "role")
-              ),
-              div(class = "six wide column",
-                  uiOutput(ns("search_user_selection"))
-              )
+        div(class = "ui stackable grid",
+          div(class = "row",
+            div(class = "two wide column",
+                shiny::actionButton(inputId = ns("NEW-user"), label = "", class = "ui green compact icon button", icon = icon("user plus"))
             ),
-            div(class = "row",
-              div(class = "sixteen wide column",
-                  shiny::uiOutput(ns("dev"))
-              )
+            div(class="four wide column",
+                dropdown(name = "sortby", choices = c("role"), value = "role")
+            ),
+            div(class = "six wide column",
+                uiOutput(ns("search_user_selection"))
+            )
+          ),
+          div(class = "row",
+            div(class = "sixteen wide column",
+                shiny::uiOutput(ns("dev"))
             )
           )
         )
       )
+    )
   )
 }
 
@@ -54,7 +54,6 @@ admin_server <- function(input, output, session, user_data){
   
   ### load users + updating removed once
   users <- reactive({
-    
     out <- dir("data/users", full.names = T) %>%
       map_dfr(jsonlite::fromJSON) %>%
       #mutate(role = "admin") %>%
@@ -93,7 +92,6 @@ admin_server <- function(input, output, session, user_data){
       multiple = T
     )
   })
-
 }
 
 

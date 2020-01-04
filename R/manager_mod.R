@@ -18,6 +18,9 @@ manager_server <- function(input, output, session, user){
       type = "notifications", 
       icon = icon("user"), 
       show_counter = F,
+      div(class = "item", style = "min-width: 150px;",
+          theme_ui(session$ns("theme"))
+      ),
       div(class = "action-button item", style = "min-width: 150px;", id = "account",
           icon("user"), "Your Account"
       ),
@@ -42,4 +45,5 @@ manager_server <- function(input, output, session, user){
   })
   
   callModule(admin_server, "admin", user)
+  callModule(theme_server, "theme")
 }

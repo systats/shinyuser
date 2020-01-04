@@ -1,3 +1,6 @@
+# devtools::document()
+# devtools::install()
+
 library(shiny)
 library(shiny.semantic)
 library(shinyjs)
@@ -13,10 +16,10 @@ library(V8)
 # devtools::install_github("Appsilon/shiny.info")
 # library(shiny.info)
 # devtools::install_github("systats/shinyuser")
-library(shinyuser)
-
-# devtools::document()
+# library(shinyuser)
 # devtools::load_all()
+
+dir("R", full.names = T) %>% walk(source)
 
 ui <- dashboardPage(
   dashboardHeader(
@@ -45,7 +48,7 @@ server <- function(input, output) {
   ### User managment
   callModule(manager_server, "manager", user)
   ### Authorized content
-  output$authorized <- renderUI({ if(user()$status == 1) ui })
+  output$authorized <- renderUI({ if(user()$status == 0) ui })
   # observe({ glimpse(user()) })
   
   # uc <- reactive({
@@ -62,7 +65,6 @@ server <- function(input, output) {
   # })
   
   # ....
-
   
 }
 
