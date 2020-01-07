@@ -1,17 +1,19 @@
 #' login_ui
 #' @export
-login_ui <- function(id){
+login_ui <- function(id, head = NULL, signin = T, recover = F){
   ns <- NS(id)
+  
   tagList(
 
     div(class="ui inverted page dimmer", id = ns("buffer"), #
-        HTML('<div class="ui text loader">Loading</div>')
+        HTML('<div class="ui indeterminate text loader">Loading</div>')
     ),
     # class = "ui centered grid container",
     
     div(id = ns("checkin"), style = "margin-top: 125px;",
         div(class = "ui centered card", 
           div(class = "content",
+            head,
             div(class="ui accordion", id = "checkin_options",
               div(class="active title", id = "default_title",
                 HTML('<i class="dropdown icon"></i>'),
@@ -21,60 +23,76 @@ login_ui <- function(id){
                 div(class = "ui form",
                   div(class = "field",
                     label("User or Email"),
-                    shiny::textInput(ns("username"), "", placeholder = "User",  value = "")
+                    div(class="ui left icon input",
+                        icon("user"),
+                        shiny::tags$input(id = ns("username"), type = "text", value = "" , placeholder="Username")
+                    )
                   ),
                   div(class = "field",
                     label("Password"),
-                    shiny::passwordInput(ns("pw"), "", placeholder = "Secret", value = "")
+                    div(class="ui left icon input",
+                        icon("key"),
+                        shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder="Secret")
+                    )
                   ),
-                  shiny::actionButton(inputId = ns("login"), label = "Login", class = "ui primary button", icon = icon("unlock alternate"))
+                  shiny::actionButton(inputId = ns("login"), label = "Login", class = "ui button", icon = icon("unlock alternate"))
                 )
               ),
-              div(class = "title",
-                  HTML('<i class="dropdown icon"></i>'),
-                  "Register"
-              ),
-              div(class = "content",
-                  div(class = "ui form",
-                      # div(class = "field",
-                      #     label("Email", icon("exclamation triangle")), 
-                      #     shiny::textInput(ns("email"), "", placeholder = "Email", value = "")
-                      # ),
-                      div(class = "field",
-                          label("Username"),
-                          shiny::textInput(ns("user"), "", placeholder = "Username", value = "")
-                      ),
-                      div(class = "field",
-                          label("Secret"),
-                          shiny::passwordInput(ns("pw1"), "", placeholder = "Password", value = "")
-                      ),
-                      div(class = "field",
-                          label("Repeat your secret"),
-                          shiny::passwordInput(ns("pw2"), "", placeholder = "Password", value = "")
-                      ),
-                      shiny::actionButton(inputId = ns("signin"), label = "Register", class = "ui basic green button", icon = icon("sign in"))
-                  )
-              ),
-              div(class = "title",
-                  HTML('<i class="dropdown icon"></i>'),
-                  "Forgot Password "
-              ),
-              div(class = "content",
-                div(class = "ui form",
-                    div(class = "field",
-                        label("Send an email to get new creds"),
-                        shiny::textInput(ns("recover_email"), "", placeholder = "Email", value = "")
+              if(signin){
+                tagList(
+                  div(class = "title",
+                      HTML('<i class="dropdown icon"></i>'),
+                      "Register"
+                  ),
+                  div(class = "content",
+                     div(class = "ui form",
+                        div(class = "field",
+                            label("Username"),
+                            div(class="ui left icon input",
+                                icon("user"),
+                                shiny::tags$input(id = ns("user"), type = "text", value="" , placeholder="Username")
+                            )
+                        ),
+                        div(class = "field",
+                            label("Secret"),
+                            div(class="ui left icon input",
+                                icon("key"),
+                                shiny::tags$input(id = ns("pw1"), type="password", value="" , placeholder="Secret")
+                            )
+                        ),
+                        div(class = "field",
+                            label("Repeat your secret"),
+                            div(class="ui left icon input",
+                                icon("key"),
+                                shiny::tags$input(id = ns("pw2"), type="password", value="" , placeholder="Secret")
+                            )
+                        ),
+                        shiny::actionButton(inputId = ns("signin"), label = "Register", class = "ui button", icon = icon("sign in"))
                     )
-                ),
-                br(),
-                shiny::actionButton(inputId = ns("recover"), label = "Recover", class = "ui secondary button", icon = icon("undo alternate"))
-              )
-            ),
-            shiny::tags$script(
-              "$(document).ready(function() {
-                $('.ui.accordion')
-                  .accordion();
-                })"
+                  )
+                )
+              },
+              if(recover){
+                tagList(
+                  div(class = "title",
+                      HTML('<i class="dropdown icon"></i>'),
+                      "Forgot Password "
+                  ),
+                  div(class = "content",
+                      div(class = "ui form",
+                          div(class = "field",
+                              label("Send an email to get new creds"),
+                              div(class="ui left icon input",
+                                  icon("envelop"),
+                                  shiny::tags$input(id = ns("email"), type="text", value="" , placeholder="Username")
+                              )
+                          )
+                      ),
+                      br(),
+                      shiny::actionButton(inputId = ns("recover"), label = "Recover", class = "ui button", icon = icon("undo alternate"))
+                  )
+                )
+              }
             )
           ),
           uiOutput(ns("message"))
@@ -161,25 +179,22 @@ login_server <- function(input, output, session){
   
   new <- reactive({ user$new("data/users") })
   
+  # observeEvent({input$login | input$signin},{
+  # 
+  # })
+  
   observeEvent(input$login ,{
     shinyjs::addClass("buffer", "active")
     new()$login(input$username, input$pw)
-    shinyjs::delay(200, shinyjs::removeClass("buffer", "active"))
+    shinyjs::delay(1000, shinyjs::removeClass("buffer", "active"))
   })
   
   observeEvent(input$logout ,{
     
     shinyjs::addClass("buffer", "active")
-    
-    # shinyjs::removeClass(selector = "title", class = "active")
-    # shinyjs::removeClass(selector = "content", class = "active")
-    # shinyjs::addClass("default_title", class = "active")
-    # shinyjs::addClass("default_content", class = "active")
-
-    #log_logout_force(ucon())
-    new()$logout()
-    new()$reset() 
-    shinyjs::delay(200, shinyjs::js$refresh())
+    shinyjs::runjs("history.go(0);")
+    # new()$logout()
+    # new()$reset() 
   })
   
   observeEvent(input$recover, {
@@ -198,15 +213,27 @@ login_server <- function(input, output, session){
     checkin_feedback(new()$session$message)
   })
   
+
   observeEvent({input$login | input$signin | input$logout}, { 
     if(new()$session$status == 1) {
-      shinyjs::hide("checkin") 
+      # https://stackoverflow.com/questions/5033650/how-to-dynamically-remove-a-stylesheet-from-the-current-page/5033739
+      shinyjs::delay(1000, 
+        shinyjs::runjs('
+          var sheet = document.getElementById("login-styles");
+          sheet.disabled = true;
+          sheet.parentNode.removeChild(sheet);
+        ')
+      )
+      shinyjs::hide("checkin", anim = T, animType = "slide")
     } else {
       shinyjs::show("checkin") 
     }
   })
   
-  out <- reactive({
+  # observe({ message(input$username) })
+  # observe({ message(input$pw) })
+
+  out <- eventReactive({input$login | input$signin}, {
     
     input$logout
     input$login
@@ -220,5 +247,6 @@ login_server <- function(input, output, session){
     as.list(new()$session)
   })
   
+
   return(out)
 }

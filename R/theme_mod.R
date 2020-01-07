@@ -13,9 +13,10 @@ theme_ui <- function(id){
 #' list_themes
 #' @export
 list_themes <-  shiny.semantic::SUPPORTED_THEMES %>%
-  set_names(shiny.semantic::SUPPORTED_THEMES) %>%
-  imap(~ glue::glue("https://d335w9rbwpvuxm.cloudfront.net/semantic.{.x}.min.css")) %>%
+  purrr::set_names(shiny.semantic::SUPPORTED_THEMES) %>%
+  purrr::imap(~ glue::glue("https://d335w9rbwpvuxm.cloudfront.net/semantic.{.x}.min.css")) %>%
   c(list("default" = "https://d335w9rbwpvuxm.cloudfront.net/semantic.min.css"))
+
 
 #' theme_server
 #' @export
@@ -29,15 +30,18 @@ theme_server <- function(input, output, session){
   #   }
   # })
   
+  default <- "https://d335w9rbwpvuxm.cloudfront.net/semantic.min.css"
+  dark <- "https://d335w9rbwpvuxm.cloudfront.net/semantic.cyborg.min.css"
+  
   observeEvent(input$daynight, {
+    req(input$daynight)
     if(input$daynight){
-      runjs(glue::glue("changeCSS('{list_themes[['cyborg']]}', 0)"))
+      shinyjs::runjs(glue::glue('$("link[src="<default>"]").attr("src","<dark>");', .open = "<", .close = ">"))
     } else {
-      runjs(glue::glue("changeCSS('{list_themes[['default']]}', 0)"))
+      shinyjs::runjs(glue::glue('$("link[src="<dark>"]").attr("src","<default>");', .open = "<", .close = ">"))
     }
   })
-  
-  
+
   output$type <- renderText({
     #req(input$daynight)
     if(is.null(input$daynight)) return("Hell")
@@ -50,3 +54,10 @@ theme_server <- function(input, output, session){
   
   outputOptions(output, "type", suspendWhenHidden = F)
 }
+
+
+
+
+
+
+

@@ -14,6 +14,8 @@ manager_server <- function(input, output, session, user){
   
   output$options <- renderUI({
     req(user())
+    if(is.null(user()$role)) return(NULL)
+    #browser()
     dropdownMenu(
       type = "notifications", 
       icon = icon("user"), 

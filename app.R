@@ -25,6 +25,7 @@ ui <- dashboardPage(
   dashboardHeader(
     inverted = T,
     manager_ui("manager")
+    #shiny::suppressDependencies("semantic-ui")
   ),
   dashboardSidebar(
     side = "left", size = "", inverted = T,
@@ -41,6 +42,13 @@ ui <- dashboardPage(
   )
 )
 
+login_head <- div(class = "ui header",
+  img(class = "ui mini image", src = "shiny.jpeg"),
+  div(class = "content",
+      "Welcome to this project"
+  )
+)
+
 server <- function(input, output) {
   
   ### User authentification
@@ -48,7 +56,14 @@ server <- function(input, output) {
   ### User managment
   callModule(manager_server, "manager", user)
   ### Authorized content
-  output$authorized <- renderUI({ if(user()$status == 0) ui })
+  output$authorized <- renderUI({ 
+    print(user())
+    if(user()$status == 1){
+      ui 
+    } else { 
+      login_ui("user", login_head, signin = T, recover = F)
+    } 
+  })
   # observe({ glimpse(user()) })
   
   # uc <- reactive({
@@ -64,9 +79,6 @@ server <- function(input, output) {
   #   uc
   # })
   
-  # ....
-  
 }
-
 
 shinyApp(meta_ui(), server)

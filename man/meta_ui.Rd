@@ -4,7 +4,7 @@
 \alias{meta_ui}
 \title{save_json}
 \usage{
-meta_ui()
+meta_ui(head = NULL, signin = T, recover = F)
 }
 \description{
 save_json
