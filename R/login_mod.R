@@ -1,6 +1,6 @@
 #' login_ui
 #' @export
-login_ui <- function(id, head = NULL, signin = T, recover = F){
+login_ui <- function(id, head = NULL, signin = T, recover = F, label_login = "User", label_pw = "Password"){
   ns <- NS(id)
   
   tagList(
@@ -22,17 +22,17 @@ login_ui <- function(id, head = NULL, signin = T, recover = F){
               div(class="active content", id = "default_content",
                 div(class = "ui form",
                   div(class = "field",
-                    label("User or Email"),
+                    label(label_login),
                     div(class="ui left icon input",
                         icon("user"),
-                        shiny::tags$input(id = ns("username"), type = "text", value = "" , placeholder="Username")
+                        shiny::tags$input(id = ns("username"), type = "text", value = "" , placeholder = label_login)
                     )
                   ),
                   div(class = "field",
-                    label("Password"),
+                    label(label_pw),
                     div(class="ui left icon input",
                         icon("key"),
-                        shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder="Secret")
+                        shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder = label_pw)
                     )
                   ),
                   shiny::actionButton(inputId = ns("login"), label = "Login", class = "ui button", icon = icon("unlock alternate"))

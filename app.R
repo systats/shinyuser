@@ -61,7 +61,7 @@ server <- function(input, output) {
     if(user()$status == 1){
       ui 
     } else { 
-      login_ui("user", login_head, signin = T, recover = F)
+      login_ui("user", login_head, signin = T, recover = F, label_login = "User", label_pw = "Passwort")
     } 
   })
   # observe({ glimpse(user()) })
