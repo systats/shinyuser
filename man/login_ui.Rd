@@ -4,7 +4,8 @@
 \alias{login_ui}
 \title{login_ui}
 \usage{
-login_ui(id, head = NULL, signin = T, recover = F)
+login_ui(id, head = NULL, signin = T, recover = F,
+  label_login = "User", label_pw = "Password")
 }
 \description{
 login_ui

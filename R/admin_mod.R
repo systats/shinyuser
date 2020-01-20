@@ -54,6 +54,9 @@ admin_server <- function(input, output, session, user_data){
   
   ### load users + updating removed once
   users <- reactive({
+    req(user_data())
+    if(user_data()$status == 0) return(NULL)
+    
     out <- dir("data/users", full.names = T) %>%
       map_dfr(jsonlite::fromJSON) %>%
       #mutate(role = "admin") %>%
