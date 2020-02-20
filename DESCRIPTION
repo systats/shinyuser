@@ -12,5 +12,6 @@ Imports:
     shiny,
     R6,
     purrr,
-    tidyverse,
+    dplyr,
+    stringr,
     magrittr
