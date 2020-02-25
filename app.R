@@ -11,13 +11,16 @@ library(purrr)
 library(jsonlite)
 library(R6)
 library(RSQLite)
+library(googlesheets4)
 # install.packages("V8")
-library(V8)
+# library(V8)
 # devtools::install_github("Appsilon/shiny.info")
 # library(shiny.info)
 # devtools::install_github("systats/shinyuser")
 # library(shinyuser)
 # devtools::load_all()
+
+sheets_deauth()
 
 dir("R", full.names = T) %>% walk(source)
 
@@ -31,7 +34,7 @@ ui <- dashboardPage(
     side = "left", size = "", inverted = T,
     sidebarMenu(
       div(class = "item",
-          h4(class = "ui inverted header", "Something")
+        h4(class = "ui inverted header", "Something")
       )
     )
   ),
@@ -45,14 +48,15 @@ ui <- dashboardPage(
 login_head <- div(class = "ui header",
   img(class = "ui mini image", src = "shiny.jpeg"),
   div(class = "content",
-      "Welcome to this project"
+    "Welcome to this project"
   )
 )
 
 server <- function(input, output) {
   
   ### User authentification
-  user <- callModule(login_server, "user")
+  user_sheet <- "https://docs.google.com/spreadsheets/d/1ZbSSxaMuf0fV5_2exz69ahOMZH46bNwlkXSKyOjYD5w/edit?usp=sharing"
+  user <- callModule(login_server, "user", user_sheet)
   ### User managment
   callModule(manager_server, "manager", user)
   ### Authorized content

@@ -4,7 +4,7 @@
 \alias{checkin_feedback}
 \title{checkin_feedback}
 \usage{
-checkin_feedback(msg)
+checkin_feedback(msg = "")
 }
 \description{
 checkin_feedback

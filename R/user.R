@@ -1,13 +1,3 @@
-#' save_json
-#' @export
-save_json <- function(file, name, path){
-  file %>% 
-    jsonlite::toJSON(force = T) %>% 
-    jsonlite::fromJSON() %>% 
-    jsonlite::toJSON(pretty = TRUE) %>% 
-    writeLines(., glue::glue("{path}/{name}.json"))
-}
-
 #' check_name
 #' @export
 check_name = function(name){
@@ -18,26 +8,14 @@ check_name = function(name){
   return(F)
 }
 
-
 #' user
 #' @export
 user <- R6::R6Class("user",
+  private = list(
+    users = NULL
+  ),
   active = list(
     
-    username = function(user){
-      if(missing(user)) return(self$params$username)
-      self$params$username <- user
-    },
-    
-    password = function(pw){
-      if(missing(pw)) return(self$params$password)
-      self$params$password <- pw
-    },
-    
-    role = function(role){
-      if(missing(role)) return(self$params$role)
-      self$params$role <- role
-    },
     
     warn_user_exists = function(){
       self$session$message <- "Fail: username already exists in the DB"
@@ -60,88 +38,26 @@ user <- R6::R6Class("user",
     },
     
     ok_login = function(){
-      self$session$status <- 1
-      self$session$message <- as.character(glue::glue("<message> Hi {self$params$username }, welcome back!"))
+      self$session$message <- as.character(glue::glue("<message> Hi {self$session$username }, welcome back!"))
     },
     
     ok_signin = function(){
-      self$session$status <- 1
-      self$session$message <- as.character(glue::glue("<message> Hi {self$username }, welcome on our platform!"))
+      self$session$message <- as.character(glue::glue("<message> Hi {self$session$username }, welcome on our platform!"))
     }
     
   ),
   public = list(
     
     path = NULL,
-    params = NULL,
-    session = list(status = 0, message = "", username = "", role = ""), 
+    user = NULL,
+    session = list(username = "", role = "", message = "", status = 0), #    users = NULL, 
     
-    # list(
-    #   username = "",
-    #   password = "",
-    #   logs = list(
-    #     error = 0,
-    #     last = 0,
-    #     total = 0
-    #   )
-    #   #roles = NULL
-    # ),
-    
-    initialize = function(path){
-      self$path <- path
+    initialize = function(users){
+      private$users <- users
     },
     
     reset = function(){
-      self$params <- NULL
-      self$session <- list(status = 0, message = "Success: Logged out", username = "")
-    },
-    
-    load = function(user){
-      
-      self$session$username <- user
-      path <- as.character(glue::glue("{self$path}/{user}.json"))
-      if(!file.exists(path)) return(NULL)
-      #print(path)
-      self$params <- jsonlite::fromJSON(path)
-    }, 
-    
-    update = function(){
-      
-      ### does the username already exist?
-      target <- glue::glue("{self$path}/{self$params$username}.json")
-      if(!file.exists(target)) return(self$save())
-      
-      self$params <- jsonlite::fromJSON(glue::glue("{self$path}/{self$params$username}.json"))
-      
-      params <- as_tibble(self$params)
-      if(is.null(params)) return(NULL)
-      
-      test <- jsonlite::fromJSON(target)
-      if(length(params) < length(test)) return(NULL)
-      
-      self$save()
-    },
-    
-    save = function(){
-      save_json(as_tibble(self$params), self$params$username, self$path)
-      self$params <- jsonlite::fromJSON(glue::glue("{self$path}/{self$params$username}.json"))
-    },
-    
-    remove = function(user = NULL, prompt = T){
-      
-      if(is.null(user)) user <- self$username 
-      
-      path <- glue::glue("{self$path}/{user}.json")
-      
-      if(prompt){
-        if(askYesNo("Do you really want to remove the user?")) file.remove(path)
-      } else {
-        file.remove(path)
-      }
-    },
-    
-    add = function(...){
-      list(...) %>% iwalk(~ { self$params[[.y]] <- .x })
+      self$session <- list(status = 0, message = "Success: Logged out", username = "", role = "")
     },
     
     login = function(user, pw){
@@ -151,18 +67,17 @@ user <- R6::R6Class("user",
       ### handle corrupted passwords
       if(check_name(pw)) return(self$warn_cred_wrong)
       
-      test <- dir(self$path, full.names = T) %>% 
-        purrr::map_dfr(jsonlite::fromJSON) %>%
+      test <- private$users %>%
         dplyr::filter(username == user) %>% 
-        dplyr::filter(password == pw)
+        dplyr::filter(password == pw) %>%
+        glimpse
       
       if(nrow(test) == 1) {
-        self$username <- test$user 
-        self$session$username <- test$user 
-        self$session$role <- test$role 
+        #self$session <- list(username = "", role = "", message = "", status = 0)
+        self$session <- test %>% dplyr::mutate(status = 1)
         self$ok_login
-        self$update()
       } else {
+        self$session <- tibble(user, pw) %>% dplyr::mutate(status = 0)
         self$warn_cred_wrong
       }
     },
@@ -171,41 +86,6 @@ user <- R6::R6Class("user",
       self$session$status <- 0
       self$session$username <- ""
       self$session$message <- "Info: successfully logged out"
-    },
-    
-    recover = function(email){
-      self$session$message <- glue::glue("Success:: Email has been sent to {email}")
-    },
-    
-    register = function(user, pw1, pw2){
-      
-      ### handle corrupted username
-      if(check_name(user)) return(self$warn_user_wrong)
-      ### handle corrupted passwords
-      if(check_name(pw1)) return(self$warn_cred_wrong)
-      if(check_name(pw2)) return(self$warn_cred_wrong)
-      
-      sample <- dir(self$path, full.names = T) %>% 
-        purrr::map_dfr(jsonlite::fromJSON) %>%
-        dplyr::filter(username == user)
-      
-      if(nrow(sample) > 0) return(self$warn_user_exists)
-      
-      if(pw1 == pw2) {
-        
-        self$username <- user 
-        self$password <- pw1
-        self$role <- "client" 
-        
-        self$session$username <- user 
-        self$session$role <- "client" 
-        
-        self$ok_signin
-        self$update()
-        
-      } else {
-        self$warn_cred_unequal 
-      }
     }
   )                        
 )

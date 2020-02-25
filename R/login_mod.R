@@ -103,8 +103,9 @@ login_ui <- function(id, head = NULL, signin = T, recover = F, label_login = "Us
 
 #' checkin_feedback
 #' @export
-checkin_feedback <- function(msg){
+checkin_feedback <- function(msg = ""){
   if(msg == "") return(NULL)
+  if(is.null(msg)) return(NULL)
   header <- str_remove(msg, ":.*?$")
   content <- str_remove(msg, "^.*?: ")
   
@@ -175,13 +176,9 @@ checkin_feedback <- function(msg){
 
 #' login_server
 #' @export
-login_server <- function(input, output, session){
+login_server <- function(input, output, session, user_sheet){
   
-  new <- reactive({ user$new("data/users") })
-  
-  # observeEvent({input$login | input$signin},{
-  # 
-  # })
+  new <- reactive({ user$new(googlesheets4::read_sheet(user_sheet)) })
   
   observeEvent(input$login ,{
     shinyjs::addClass("buffer", "active")
@@ -215,6 +212,7 @@ login_server <- function(input, output, session){
   
 
   observeEvent({input$login | input$signin | input$logout}, { 
+    req(new())
     if(new()$session$status == 1) {
       # https://stackoverflow.com/questions/5033650/how-to-dynamically-remove-a-stylesheet-from-the-current-page/5033739
       shinyjs::delay(1000, 

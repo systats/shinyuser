@@ -37,64 +37,64 @@ admin_ui <- function(id){
 admin_server <- function(input, output, session, user_data){
 
   ### show admin panel 
-  observeEvent(input$show, {
-    shinyjs::runjs("$('#admin-modal').modal('show');")
-  })
+  # observeEvent(input$show, {
+  #   shinyjs::runjs("$('#admin-modal').modal('show');")
+  # })
   
-  ### create new user
-  observeEvent(input$`NEW-user`, {
-    #browser()
-    new <- user$new("data/users")
-    new$username <- "NEW"
-    new$password <- ""
-    new$role <- "client"
-    new$update()
-    new$reset()
-  })
+  # ### create new user
+  # observeEvent(input$`NEW-user`, {
+  #   #browser()
+  #   new <- user$new("data/users")
+  #   new$username <- "NEW"
+  #   new$password <- ""
+  #   new$role <- "client"
+  #   new$update()
+  #   new$reset()
+  # })
   
   ### load users + updating removed once
-  users <- reactive({
-    req(user_data())
-    if(user_data()$status == 0) return(NULL)
-    
-    out <- dir("data/users", full.names = T) %>%
-      map_dfr(jsonlite::fromJSON) %>%
-      #mutate(role = "admin") %>%
-      mutate(session_id = session$ns(username)) %>%
-      arrange(desc(ifelse(username == "NEW", 1, 0)))
-    
-    ### trigger reload
-    input$`NEW-user`
-    #input$`A-NEW-USER-remove`
-    out$username %>% purrr::map(~{  input[[paste0(.x, "-remove")]] })
-
-    out
-  })
-  
-  output$dev <- renderUI({
-    req(users())
-    users() %>%
-      split(1:nrow(.)) %>%
-      map(entry_ui)
-  })
-  
-  outputOptions(output, "dev", suspendWhenHidden = F)
-  
-  observe({
-    req(users())
-    users() %>%
-      split(1:nrow(.)) %>%
-      purrr::walk(~{ callModule(entry_server, .x$username, .x) })
-  })
-  
-  output$search_user_selection <- renderUI({
-    shiny.semantic::search_selection_choices(
-      name = session$ns("search_user"), 
-      choices = users()$username,
-      value = NULL, 
-      multiple = T
-    )
-  })
+  # users <- reactive({
+  #   req(user_data())
+  #   if(user_data()$status == 0) return(NULL)
+  #   
+  #   out <- dir("data/users", full.names = T) %>%
+  #     map_dfr(jsonlite::fromJSON) %>%
+  #     #mutate(role = "admin") %>%
+  #     mutate(session_id = session$ns(username)) %>%
+  #     arrange(desc(ifelse(username == "NEW", 1, 0)))
+  #   
+  #   ### trigger reload
+  #   input$`NEW-user`
+  #   #input$`A-NEW-USER-remove`
+  #   out$username %>% purrr::map(~{  input[[paste0(.x, "-remove")]] })
+  # 
+  #   out
+  # })
+  # 
+  # output$dev <- renderUI({
+  #   req(users())
+  #   users() %>%
+  #     split(1:nrow(.)) %>%
+  #     map(entry_ui)
+  # })
+  # 
+  # outputOptions(output, "dev", suspendWhenHidden = F)
+  # 
+  # observe({
+  #   req(users())
+  #   users() %>%
+  #     split(1:nrow(.)) %>%
+  #     purrr::walk(~{ callModule(entry_server, .x$username, .x) })
+  # })
+  # 
+  # output$search_user_selection <- renderUI({
+  #   shiny.semantic::search_selection_choices(
+  #     name = session$ns("search_user"), 
+  #     choices = users()$username,
+  #     value = NULL, 
+  #     multiple = T
+  #   )
+  # })
 }
 
 
