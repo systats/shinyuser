@@ -69,8 +69,7 @@ user <- R6::R6Class("user",
       
       test <- private$users %>%
         dplyr::filter(username == user) %>% 
-        dplyr::filter(password == pw) %>%
-        glimpse
+        dplyr::filter(password == pw)
       
       if(nrow(test) == 1) {
         #self$session <- list(username = "", role = "", message = "", status = 0)

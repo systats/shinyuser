@@ -4,7 +4,7 @@
 \alias{admin_server}
 \title{admin_server}
 \usage{
-admin_server(input, output, session, user_data)
+admin_server(input, output, session, users)
 }
 \description{
 admin_server

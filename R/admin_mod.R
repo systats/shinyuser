@@ -3,7 +3,10 @@
 admin_ui <- function(id){
   ns <- NS(id)
   tagList(
-    div(class="ui modal", id = "admin-modal",
+      # div(class="ui modal", id = "user-details",
+      # 
+      # ),
+      #div(class="ui modal", id = "admin-modal",
       span(class = "ui header",
         "Admin Panel"
       ),
@@ -12,10 +15,10 @@ admin_ui <- function(id){
         div(class = "ui stackable grid",
           div(class = "row",
             div(class = "two wide column",
-                shiny::actionButton(inputId = ns("NEW-user"), label = "", class = "ui green compact icon button", icon = icon("user plus"))
+              shiny::actionButton(inputId = ns("new_user"), label = "", class = "ui green compact icon button", icon = icon("user plus"))
             ),
             div(class="four wide column",
-                dropdown(name = "sortby", choices = c("role"), value = "role")
+              dropdown(name = "sortby", choices = c("admin", "client"), value = "role")
             ),
             div(class = "six wide column",
                 uiOutput(ns("search_user_selection"))
@@ -23,78 +26,61 @@ admin_ui <- function(id){
           ),
           div(class = "row",
             div(class = "sixteen wide column",
-                shiny::uiOutput(ns("dev"))
+              DT::DTOutput(ns("list"))
             )
           )
+        ),
+        div(class = "ui divider"),
+        div(class = "ui form",
+            div(class = "fields",
+                div(class = "field",
+                    textInput(ns("username"), label = "", value = "")
+                ),
+                div(class = "field",
+                    textInput(ns("pw"), label = "", value = "") 
+                )
+            )    
         )
-      )
+      #)
     )
   )
 }
 
 #' admin_server
 #' @export
-admin_server <- function(input, output, session, user_data){
+admin_server <- function(input, output, session, users){
 
-  ### show admin panel 
-  # observeEvent(input$show, {
-  #   shinyjs::runjs("$('#admin-modal').modal('show');")
-  # })
+  output$search_user_selection <- renderUI({
+    shiny.semantic::search_selection_choices(
+      name = session$ns("search_user"),
+      choices = users()$username,
+      value = NULL,
+      multiple = T
+    )
+  })
   
-  # ### create new user
-  # observeEvent(input$`NEW-user`, {
-  #   #browser()
-  #   new <- user$new("data/users")
-  #   new$username <- "NEW"
-  #   new$password <- ""
-  #   new$role <- "client"
-  #   new$update()
-  #   new$reset()
-  # })
+  output$list <- DT::renderDT({
+    req(users())
+    DT::datatable(users(), selection = list(mode = "single"))
+  })
   
-  ### load users + updating removed once
-  # users <- reactive({
-  #   req(user_data())
-  #   if(user_data()$status == 0) return(NULL)
-  #   
-  #   out <- dir("data/users", full.names = T) %>%
-  #     map_dfr(jsonlite::fromJSON) %>%
-  #     #mutate(role = "admin") %>%
-  #     mutate(session_id = session$ns(username)) %>%
-  #     arrange(desc(ifelse(username == "NEW", 1, 0)))
-  #   
-  #   ### trigger reload
-  #   input$`NEW-user`
-  #   #input$`A-NEW-USER-remove`
-  #   out$username %>% purrr::map(~{  input[[paste0(.x, "-remove")]] })
-  # 
-  #   out
-  # })
-  # 
-  # output$dev <- renderUI({
-  #   req(users())
-  #   users() %>%
-  #     split(1:nrow(.)) %>%
-  #     map(entry_ui)
-  # })
-  # 
-  # outputOptions(output, "dev", suspendWhenHidden = F)
-  # 
-  # observe({
-  #   req(users())
-  #   users() %>%
-  #     split(1:nrow(.)) %>%
-  #     purrr::walk(~{ callModule(entry_server, .x$username, .x) })
-  # })
-  # 
-  # output$search_user_selection <- renderUI({
-  #   shiny.semantic::search_selection_choices(
-  #     name = session$ns("search_user"), 
-  #     choices = users()$username,
-  #     value = NULL, 
-  #     multiple = T
-  #   )
-  # })
+  selected <- reactive({
+    req(input$list_rows_selected)
+    
+    target <- input$list_rows_all[which(input$list_rows_all %in% input$list_rows_selected)]
+    users() %>%
+      dplyr::slice(target)
+  })
+  
+  observeEvent({input$list_rows_selected},{
+    shinyjs::runjs("$('#user-details').modal('show');")
+  }, ignoreInit = T)
+  
+  observe({
+    glimpse(selected())
+  })
+
+  outputOptions(output, "list", suspendWhenHidden = F)
 }
 
 
