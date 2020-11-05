@@ -28,7 +28,7 @@ login_annimation <- function(){
     color: pink;
     font-size: 30px;
     font-weight: bold;
-    margin: 20px auto;
+    # margin: 20px auto;
     text-align: center;
     animation: text .5s linear .4s;
     -webkit-animation: text .4s linear .3s;

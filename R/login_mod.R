@@ -4,14 +4,14 @@ form_login <- function(id, label_user, label_pw){
   ns <- NS(id)
   div(class = "ui form",
     div(class = "field",
-      label(label_user),
+      h3(label_user),
       div(class = "ui left icon input", id = ns("frame_user"),
         HTML('<i class="ui user icon"></i>'),
         shiny::tags$input(id = ns("username"), type = "text", value = "" , placeholder = label_user)
       )
     ),
     div(class = "field",
-      label(label_pw),
+      h3(label_pw),
       div(class = "ui left icon input", id = ns("frame_pw"),
         HTML('<i class="ui key icon"></i>'),
         shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder = label_pw)

@@ -1,16 +1,17 @@
 # devtools::document()
 # devtools::install()
 
-library(shiny)
-library(shiny.semantic)
-library(shinyjs)
-library(semantic.dashboard)
 library(dplyr)
 library(stringr)
 library(purrr)
 library(jsonlite)
 library(R6)
+library(shiny.semantic)
+library(shiny)
+library(shinyjs)
+library(semantic.dashboard)
 library(RSQLite)
+
 # library(googlesheets4)
 # install.packages("V8")
 # library(V8)
@@ -20,7 +21,7 @@ library(RSQLite)
 # library(shinyuser)
 # devtools::load_all()
 
-dir("R", full.names = T) %>% walk(source)
+dir("R", full.names = T) %>% purrr::walk(source)
 
 ui <- function(){
   dashboardPage(

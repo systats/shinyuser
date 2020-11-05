@@ -18,7 +18,7 @@ admin_ui <- function(id){
               shiny::actionButton(inputId = ns("new_user"), label = "", class = "ui green compact icon button", icon = icon("user plus"))
             ),
             div(class="four wide column",
-              dropdown(name = "sortby", choices = c("admin", "client"), value = "role")
+              dropdown_input(input_id = ns("sortby"), choices = c("admin", "client"), value = "role")
             ),
             div(class = "six wide column",
                 uiOutput(ns("search_user_selection"))
@@ -52,7 +52,7 @@ admin_server <- function(input, output, session, users){
 
   output$search_user_selection <- renderUI({
     shiny.semantic::search_selection_choices(
-      name = session$ns("search_user"),
+      input_id = session$ns("search_user"),
       choices = users()$username,
       value = NULL,
       multiple = T
