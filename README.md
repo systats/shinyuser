@@ -27,42 +27,62 @@ Minimal example of
 pacman::p_load(devtools, shiny, shiny.semantic, semantic.dashboard, tidyverse,
                 RSQLite, shinyjs, R6)
 
-ui <- dashboardPage(
-  dashboardHeader(
-    inverted = T,
-    ### just add this to your ui
-    manager_ui("manager")
-  ),
-  dashboardSidebar(
-    side = "left", size = "", inverted = T,
-    sidebarMenu(
-      div(class = "item",
+ui <- function(){
+  dashboardPage(
+    dashboardHeader(
+      inverted = T,
+      login_ui("user", signin = F)
+      # manager_ui("manager")
+    ),
+    dashboardSidebar(
+      side = "left", size = "", inverted = T,
+      sidebarMenu(
+        div(class = "item",
           h4(class = "ui inverted header", "Something")
+        )
+      )
+    ),
+    dashboardBody(
+      div(class = "sixteen wide column",
+        #"Something great content",
+        admin_ui("admin")
       )
     )
-  ),
-  dashboardBody(
-    div(class = "sixteen wide column",
-      "Something great"
-    )
   )
-)
+}
+
+### Initalize root user
+# con <-  RSQLite::dbConnect(RSQLite::SQLite(), "data/users.db") 
+# df <- tibble(username = "root", password = "test", role = "admin")
+# RSQLite::dbWriteTable(con, "users", df)
 
 server <- function(input, output) {
   
-  ### User authentification
-  user <- callModule(login_server, "user")
-  ### User managment
-  callModule(manager_server, "manager", user)
-  ### Authorized UI
-  output$authorized <- renderUI({ if(user()$status == 1) ui })
-  # observe({ glimpse(user()) })
+  ### Goofle sheets User authentification
+  # at top: sheets_deauth()
+  # at top: sheets_auth()
+  # user_sheet <- "https://docs.google.com/spreadsheets/d/1ZbSSxaMuf0fV5_2exz69ahOMZH46bNwlkXSKyOjYD5w/edit?usp=sharing"
+  # users <- reactive({ googlesheets4::read_sheet(user_sheet) })
+  
+  users <- reactive({ 
+    con <-  RSQLite::dbConnect(RSQLite::SQLite(), "data/users.db") 
+    con %>% 
+      dplyr::tbl("users") %>% 
+      as_tibble()
+  })
+  
+  user <- callModule(login_server, "user", users)
 
-  ### Your Code
+  ### call all your modules only if a user is successfully logged in
+  observeEvent(user(), {
+    observe(print(user()))
+    callModule(manager_server, "manager", user)
+    callModule(admin_server, "admin", users)
+  })
+  
 }
 
-### call meta_ui instead of ui to initalize login screen
-shinyApp(meta_ui(), server)
+shinyApp(ui, server)
 ```
 
 The app will start up with a login/sign in modal.
