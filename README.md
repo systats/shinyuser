@@ -14,8 +14,9 @@ modularized solution.
 Features:
 
 1.  User’s credentials are saved wherever you want.
-2.  Safe and secure interface.
-3.  Stay logged in after refresh.
+2.  Clean and secure landing page.
+3.  Stay logged in after refresh ([taken from
+    calligross](https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189)).
 4.  Build with
     [shiny.semantic](https://github.com/Appsilon/shiny.semantic) for
     clean design patterns

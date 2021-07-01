@@ -86,26 +86,28 @@ login_ui <- function(id, head = NULL, signin = T, recover = F,
     shinyjs::useShinyjs(),
     extendShinyjs(text = jsCode, functions = c("getcookie","setcookie","rmcookie")),
     div(class = "ui inverted active page dimmer", id = ns("buffer"),
-        style = "background-color:#e0e1e2;",
-        div(class="ui text loader", "Loading Data")
+      style = "background-color:#e0e1e2;",
+      div(class="ui text loader", "Loading Data")
     ),
-    hidden(div(class = "ui inverted active page dimmer", id = ns("checkin"), 
+    hidden(
+      div(class = "ui inverted active page dimmer", id = ns("checkin"), 
         style = "background-color:#e0e1e2;",
         div(class = "ui card", align = "left", #style = "margin-top: 10%;",
-            div(class = "content",
-                head,
-                div(class="ui accordion", id = "checkin_options",
-                    div(class = "active title", id = "default_title",
-                        HTML('<i class="ui dropdown icon"></i>'),
-                        "Login"
-                    ),
-                    div(class="active content", id = "default_content",
-                        form_login(id, label_user, label_pw)
-                    )
-                )
+          div(class = "content",
+            head,
+            div(class="ui accordion", id = "checkin_options",
+              div(class = "active title", id = "default_title",
+                HTML('<i class="ui dropdown icon"></i>'),
+                "Login"
+              ),
+              div(class="active content", id = "default_content",
+                form_login(id, label_user, label_pw)
+              )
             )
+          )
         )
-    )),
+      )
+    ),
     shiny::tags$script("$('.ui.accordion').accordion();"),
     # https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
     shiny::tags$script(clickjs)
