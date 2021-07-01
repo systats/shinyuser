@@ -4,8 +4,7 @@
 \alias{toggle_input}
 \title{toggle_input}
 \usage{
-toggle_input(id, label = NULL, fitted = F, checked = F,
-  class = NULL)
+toggle_input(id, label = NULL, fitted = F, checked = F, class = NULL)
 }
 \description{
 toggle_input

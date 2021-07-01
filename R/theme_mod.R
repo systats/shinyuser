@@ -52,10 +52,3 @@
 #'   
 #'   outputOptions(output, "type", suspendWhenHidden = F)
 #' }
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 
-#' 

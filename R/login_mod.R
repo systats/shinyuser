@@ -7,7 +7,7 @@ form_login <- function(id, label_user, label_pw){
       h3(label_user),
       div(class = "ui left icon input", id = ns("frame_user"),
         HTML('<i class="ui user icon"></i>'),
-        shiny::tags$input(id = ns("username"), type = "text", value = "" , placeholder = label_user)
+        shiny::tags$input(id = ns("name"), type = "text", value = "" , placeholder = label_user)
       )
     ),
     div(class = "field",
@@ -29,7 +29,7 @@ form_signin <- function(id){
     div(class = "field",
       div(class = "ui left icon input",
         HTML('<i class="ui user icon"></i>'),
-        shiny::tags$input(id = ns("user"), type = "text", value="" , placeholder="Username")
+        shiny::tags$input(id = ns("user"), type = "text", value="" , placeholder="name")
       )
     ),
     div(class = "field",
@@ -57,14 +57,15 @@ form_recover <- function(id){
       label("Send an email to get new creds"),
       div(class="ui left icon input",
         HTML('<i class="ui envelop icon"></i>'),
-        shiny::tags$input(id = ns("email"), type = "text", value = "" , placeholder = "Username")
+        shiny::tags$input(id = ns("email"), type = "text", value = "" , placeholder = "name")
       )
     ),
     div(class = "ui fluid button action-button", id = ns("recover"), HTML('<i class="ui undo alternate icon"></i>'))
   )
 }
 
-
+#' clickjs
+#' @export 
 clickjs <- '$(document).keyup(function(event) {
     if (event.key == "Enter") {
         $("#user-login").click();
@@ -73,184 +74,131 @@ clickjs <- '$(document).keyup(function(event) {
 
 #' login_ui
 #' @export 
-login_ui <- function(id, head = NULL, signin = T, recover = F, label_user = "User", label_pw = "Password"){
+login_ui <- function(id, head = NULL, signin = T, recover = F, 
+                     label_user = "User", label_pw = "Password"){
   
   ns <- NS(id)
   
   tagList(
-    shinyjs::useShinyjs(),
-    div(class = "ui inverted active page dimmer",  style = "background-color:#e0e1e2;",
-      div(class = "ui card", align = "left", id = ns("checkin"), #style = "margin-top: 10%;",
-        div(class = "content",
-          head,
-          div(class="ui accordion", id = "checkin_options",
-            div(class = "active title", id = "default_title",
-              HTML('<i class="ui dropdown icon"></i>'),
-              "Login"
-            ),
-            div(class="active content", id = "default_content",
-              form_login(id, label_user, label_pw)
-            ),
-            if(signin){
-              tagList(
-                div(class = "title",
-                  HTML('<i class="ui dropdown icon"></i>'),
-                  "Register"
-                ),
-                div(class = "content",
-                  form_signin(id)
-                )
-              )
-            },
-            if(recover){
-              tagList(
-                div(class = "title",
-                  HTML('<i class="ui dropdown icon"></i>'),
-                  "Forgot Password "
-                ),
-                div(class = "content",
-                  form_recover(id)
-                )
-              )
-            }
-          )
-        )
-      ),
-      shinyjs::hidden(
-        div(id = ns("checkmark"),
-          login_annimation()
-        )
-      )
-      #uiOutput(ns("message"))
+    tags$head(
+      tags$script(src = "https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js") 
     ),
-    shiny::tags$script("$('.dimmer').dimmer({closable: false}).dimmer('show');"),
+    shinyjs::useShinyjs(),
+    extendShinyjs(text = jsCode, functions = c("getcookie","setcookie","rmcookie")),
+    div(class = "ui inverted active page dimmer", id = ns("buffer"),
+        style = "background-color:#e0e1e2;",
+        div(class="ui text loader", "Loading Data")
+    ),
+    hidden(div(class = "ui inverted active page dimmer", id = ns("checkin"), 
+        style = "background-color:#e0e1e2;",
+        div(class = "ui card", align = "left", #style = "margin-top: 10%;",
+            div(class = "content",
+                head,
+                div(class="ui accordion", id = "checkin_options",
+                    div(class = "active title", id = "default_title",
+                        HTML('<i class="ui dropdown icon"></i>'),
+                        "Login"
+                    ),
+                    div(class="active content", id = "default_content",
+                        form_login(id, label_user, label_pw)
+                    )
+                )
+            )
+        )
+    )),
     shiny::tags$script("$('.ui.accordion').accordion();"),
     # https://stackoverflow.com/questions/32335951/using-enter-key-with-action-button-in-r-shiny
     shiny::tags$script(clickjs)
   )
 }
 
-#' checkin_feedback
-#' @export
-checkin_feedback <- function(msg = ""){
-  if(msg == "") return(NULL)
-  if(is.null(msg)) return(NULL)
-  header <- str_remove(msg, ":.*?$")
-  content <- str_remove(msg, "^.*?: ")
+#' check_credentials
+#' @export 
+check_credentials <- function(users, .user, .pw){
   
-  if(str_detect(msg, "Fail")){
-    out <- tagList(
-      div(class="ui attached icon warning message",
-        HTML('<i class="close icon"></i>'),
-        div(class="content",
-          div(class="ui header",
-            header
-          ),
-          content
-        )
-      )
-    )
-  } else if(str_detect(msg, "Success")){ 
-    out <- tagList(
-      div(class="ui attached icon positive message",
-          HTML('<i class="close icon"></i>'),
-          div(class="content",
-              div(class="ui header",
-                  header
-              ),
-              content
-          )
-      )
-    )
+  trial <- dplyr::filter(users, name == .user & pw == .pw)
+  
+  if(nrow(trial) == 1) {
+    session <- dplyr::mutate(trial, status = 1)
   } else {
-    out <- tagList(
-      div(class="ui attached icon info message",
-          HTML('<i class="close icon"></i>'),
-          div(class="content",
-              div(class="ui header",
-                  header
-              ),
-              content
-          )
-      )
-    )
+    session <- dplyr::tibble(user = .user, pw = .pw, status = 0)
   }
-  
-  tagList(
-    out, 
-    shiny::tags$script("$('.message .close')
-      .on('click', function() {
-        $(this)
-          .closest('.message')
-          .transition('fade')
-        ;
-      })
-    ;")
-  )
+  return(session)
 }
+
+# https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189
+#' jsCode
+#' @export 
+jsCode <- '
+  shinyjs.getcookie = function(params) {
+    var cookie = Cookies.get("id");
+    if (typeof cookie !== "undefined") {
+      Shiny.onInputChange("user-jscookie", cookie);
+    } else {
+      var cookie = "";
+      Shiny.onInputChange("user-jscookie", cookie);
+    }
+  }
+  shinyjs.setcookie = function(params) {
+    Cookies.set("id", escape(params), { expires: 0.5 });  
+    Shiny.onInputChange("user-jscookie", params);
+  }
+  shinyjs.rmcookie = function(params) {
+    Cookies.remove("id");
+    Shiny.onInputChange("user-jscookie", "");
+  }
+'
 
 #' login_server
 #' @export
 login_server <- function(input, output, session, users){
   
-  new <- reactive({
-    user$new(users()) 
+  sess <- reactive({
+    req(users())
+    js$getcookie()
+    if(is.null(input$jscookie)) return(NULL)
+    if(input$jscookie == ""){
+      shinyjs::show("checkin")
+      shinyjs::hide("buffer")
+      check_credentials(users(), input$name, input$pw)
+    } else {
+      shinyjs::hide("buffer")
+      dplyr::mutate(dplyr::filter(users(), name == input$jscookie), status = 1)
+    }
   })
   
-  observeEvent(input$login ,{
-    shinyjs::addClass("buffer", "active")
-    new()$login(input$username, input$pw)
-    shinyjs::delay(1000, shinyjs::removeClass("buffer", "active"))
+  
+  observe({
+    req(sess())
+    print(input$jscookie)
   })
   
-  observeEvent(input$logout ,{
-    
-    shinyjs::addClass("buffer", "active")
-    shinyjs::runjs("history.go(0);")
-    # new()$logout()
-    # new()$reset() 
+  observeEvent( input$logout ,{
+    # reset session cookies
+    js$rmcookie()
+    # shinyjs::runjs("history.go(0);")
+    # shinyjs::runjs("$('.dimmer').dimmer('show');")
   })
-  
-  observeEvent(input$recover, {
-    new()$recover(input$recover_email)
-  })
-  
-  observeEvent(input$signin ,{
-    new()$register(input$user, input$pw1, input$pw2)
-  })
-  
-  # output$message <- renderUI({
-  #   input$login
-  #   input$logout
-  #   input$signin
-  #   input$recover
-  #   checkin_feedback(new()$session$message)
-  # })
-  
-  observeEvent({input$login | input$signin | input$logout}, { 
-    # req(new())
-    if(new()$session$status == 1) {
+
+  observeEvent({  input$login }, {
+
+    if(sess()$status == 1) {
       
-      shinyjs::show("checkmark")
+      # set session cookie
+      js$setcookie(sess()$name)
+      # hide login panel
       shinyjs::hide("checkin")
-      shinyjs::delay(1400, shinyjs::runjs("$('#user-checkmark').dimmer({transition: 'vertical flip'}).dimmer('hide');"))
-      shinyjs::delay(1500, shinyjs::runjs("$('.dimmer').dimmer('hide');"))
       
     } else {
-      
-      shinyjs::addCssClass("frame_user", "error")
-      shinyjs::addCssClass("frame_pw", "error")
+      # do some error shaling
       shinyjs::runjs("$('#user-checkin').transition('shake');")
-      shinyjs::delay(2000, shinyjs::removeCssClass("frame_user", "error"))
-      shinyjs::delay(2000, shinyjs::removeCssClass("frame_pw", "error"))
-    
     }
   }, ignoreInit = T)
 
-  out <- eventReactive({input$login | input$signin}, {
-    
-    if(new()$session$status == 1) {
-      return(as.list(new()$session))
+  out <- eventReactive({ input$login }, {
+    # only return data if valid login otherwise NULL
+    if(sess()$status == 1) {
+      return(sess())
     } else {
       return(NULL)
     }

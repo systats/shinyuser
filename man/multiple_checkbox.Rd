@@ -4,8 +4,15 @@
 \alias{multiple_checkbox}
 \title{multiple_checkbox}
 \usage{
-multiple_checkbox(input_id, label, choices, selected = NULL,
-  position = "grouped", type = "radio", ...)
+multiple_checkbox(
+  input_id,
+  label,
+  choices,
+  selected = NULL,
+  position = "grouped",
+  type = "radio",
+  ...
+)
 }
 \description{
 multiple_checkbox

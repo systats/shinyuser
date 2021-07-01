@@ -4,8 +4,7 @@
 \alias{toggle_slider}
 \title{toggle_slider}
 \usage{
-toggle_slider(id, label = NULL, fitted = F, checked = F,
-  class = NULL)
+toggle_slider(id, label = NULL, fitted = F, checked = F, class = NULL)
 }
 \description{
 toggle_slider
