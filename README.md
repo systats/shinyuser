@@ -32,31 +32,28 @@ library(semantic.dashboard)
 library(shinyuser)
 
 ui <- function(){
-  tagList(
-    dashboardPage(
-      dashboardHeader(
-        inverted = T,
-        login_ui("user"),
-        div(class = "ui button action-button", id = "user-logout", 
-            icon("power off")
+  dashboardPage(
+    dashboardHeader(
+      inverted = T,
+      login_ui("user"),
+      div(class = "ui button action-button", id = "user-logout", 
+        icon("power off")
+      )
+    ),
+    dashboardSidebar(
+      side = "left", size = "", inverted = T,
+      sidebarMenu(
+        div(class = "item",
+          h4(class = "ui inverted header", "Something")
         )
-      ),
-      dashboardSidebar(
-        side = "left", size = "", inverted = T,
-        sidebarMenu(
-          div(class = "item",
-              h4(class = "ui inverted header", "Something")
-          )
-        )
-      ),
-      dashboardBody(
-        div(class = "sixteen wide column",
-            "Some secret content"
-        )
+      )
+    ),
+    dashboardBody(
+      div(class = "sixteen wide column",
+        "Some secret content"
       )
     )
   )
-  
 }
 
 server <- function(input, output) {
@@ -77,4 +74,4 @@ server <- function(input, output) {
 shinyApp(ui, server)
 ```
 
-<!-- <img src = "demo.gif"> <!-- width = "80%" --> –&gt;
+<!-- <img src = "demo.gif"> <!-- width = "80%" -->

@@ -28,32 +28,28 @@ sheets_auth(
 dir("R", full.names = T) %>% purrr::walk(source)
 
 ui <- function(){
-  tagList(
-    dashboardPage(
-      dashboardHeader(
-        inverted = T,
-        # useShinyjs(),
-        login_ui("user"),
-        div(class = "ui button action-button", id = "user-logout", 
-            icon("power off")
+  dashboardPage(
+    dashboardHeader(
+      inverted = T,
+      login_ui("user"),
+      div(class = "ui button action-button", id = "user-logout", 
+        icon("power off")
+      )
+    ),
+    dashboardSidebar(
+      side = "left", size = "", inverted = T,
+      sidebarMenu(
+        div(class = "item",
+          h4(class = "ui inverted header", "Something")
         )
-      ),
-      dashboardSidebar(
-        side = "left", size = "", inverted = T,
-        sidebarMenu(
-          div(class = "item",
-              h4(class = "ui inverted header", "Something")
-          )
-        )
-      ),
-      dashboardBody(
-        div(class = "sixteen wide column",
-            "Something great content"
-        )
+      )
+    ),
+    dashboardBody(
+      div(class = "sixteen wide column",
+        "Something great content"
       )
     )
   )
-  
 }
 
 server <- function(input, output) {
