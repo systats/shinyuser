@@ -4,7 +4,7 @@
 \alias{form_login}
 \title{form_login}
 \usage{
-form_login(id, label_user, label_pw)
+form_login(id)
 }
 \description{
 form_login

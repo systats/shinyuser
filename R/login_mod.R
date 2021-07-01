@@ -1,20 +1,18 @@
 #' form_login
 #' @export 
-form_login <- function(id, label_user, label_pw){
+form_login <- function(id){
   ns <- NS(id)
   div(class = "ui form",
     div(class = "field",
-      h3(label_user),
       div(class = "ui left icon input", id = ns("frame_user"),
         HTML('<i class="ui user icon"></i>'),
-        shiny::tags$input(id = ns("name"), type = "text", value = "" , placeholder = label_user)
+        shiny::tags$input(id = ns("name"), type = "text", value = "" , placeholder = "Username")
       )
     ),
     div(class = "field",
-      h3(label_pw),
       div(class = "ui left icon input", id = ns("frame_pw"),
         HTML('<i class="ui key icon"></i>'),
-        shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder = label_pw)
+        shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder = "Password")
       )
     ),
     div(class = "ui fluid button action-button", id = ns("login"), HTML('<i class="ui unlock alternate icon"></i>'))
@@ -74,8 +72,7 @@ clickjs <- '$(document).keyup(function(event) {
 
 #' login_ui
 #' @export 
-login_ui <- function(id, head = NULL, signin = T, recover = F, 
-                     label_user = "User", label_pw = "Password"){
+login_ui <- function(id, head = NULL){
   
   ns <- NS(id)
   
@@ -101,7 +98,7 @@ login_ui <- function(id, head = NULL, signin = T, recover = F,
                 "Login"
               ),
               div(class="active content", id = "default_content",
-                form_login(id, label_user, label_pw)
+                form_login(id)
               )
             )
           )
