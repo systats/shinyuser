@@ -194,7 +194,8 @@ login_server <- function(input, output, session, users){
     }
   }, ignoreInit = T)
 
-  out <- eventReactive({ input$login }, {
+  out <- reactive({
+    req(sess())
     # only return data if valid login otherwise NULL
     if(sess()$status == 1) {
       return(sess())
