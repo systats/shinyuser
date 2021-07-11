@@ -120,7 +120,7 @@ check_credentials <- function(users, .user, .pw){
   if(nrow(trial) == 1) {
     session <- dplyr::mutate(trial, status = 1)
   } else {
-    session <- dplyr::tibble(user = .user, pw = .pw, status = 0)
+    session <- NULL
   }
   return(session)
 }
@@ -152,54 +152,71 @@ jsCode <- '
 #' @export
 login_server <- function(input, output, session, users){
   
-  sess <- reactive({
+  status <- reactiveVal("")
+   
+  observe({
     req(users())
     js$getcookie()
+    
     if(is.null(input$jscookie)) return(NULL)
-    if(input$jscookie == ""){
-      shinyjs::show("checkin")
+    
+    known <- dplyr::mutate(dplyr::filter(users(), name == input$jscookie), status = 1)
+    
+    if(nrow(known) > 0) {
+      if(isolate(status()) == known$name[1]){
+        cat(".")
+        #print(glue::glue("No change for cookie {status()}"))
+      } else {
+        print(glue::glue("Found valid cookie: {input$jscookie}"))
+        status(input$jscookie)
+      }
+      shinyjs::hide("checkin")
       shinyjs::hide("buffer")
-      check_credentials(users(), input$name, input$pw)
     } else {
-      shinyjs::hide("buffer")
-      dplyr::mutate(dplyr::filter(users(), name == input$jscookie), status = 1)
+      
+      print(glue::glue("No valid cookie found"))
+      status('')
+      shinyjs::show("checkin")
+      print(glue::glue("Show Login Panel"))
+      
     }
   })
   
-  
-  observe({
-    req(sess())
-    print(input$jscookie)
+  observeEvent(input$login, {
+    
+    print(glue::glue("Checking Credentials"))
+    known <- check_credentials(users(), input$name, input$pw)
+    
+    if(!is.null(known)){
+      if(known$status == 1){
+        print(glue::glue("Successfully logged in"))
+        status(known$name[1])
+        js$setcookie(known$name[1])
+      }
+    } else {
+      print(glue::glue("Some input error"))
+      shinyjs::runjs("$('#user-checkin').transition('shake');")
+      status('')
+    }
   })
   
   observeEvent( input$logout ,{
     # reset session cookies
+    print(glue::glue("Logged out"))
+    status('')
     js$rmcookie()
     # shinyjs::runjs("history.go(0);")
     # shinyjs::runjs("$('.dimmer').dimmer('show');")
   })
-
-  observeEvent({  input$login }, {
-
-    if(sess()$status == 1) {
-      
-      # set session cookie
-      js$setcookie(sess()$name)
-      # hide login panel
-      shinyjs::hide("checkin")
-      
-    } else {
-      # do some error shaling
-      shinyjs::runjs("$('#user-checkin').transition('shake');")
-    }
-  }, ignoreInit = T)
-
+  
   out <- reactive({
-    req(sess())
+    req(status())
     # only return data if valid login otherwise NULL
-    if(sess()$status == 1) {
-      return(sess())
+    if(status() != "") {
+      print(glue::glue("Return user data"))
+      return(users() %>% filter(name == status()))
     } else {
+      print(glue::glue("Stop process"))
       return(NULL)
     }
   })
