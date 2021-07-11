@@ -63,7 +63,7 @@ server <- function(input, output) {
 
   observeEvent(user(), {
     observe(print(user()))
-  })
+  }, ignoreInit = T) # , ignoreInit = T is important so that no content is displayed before auth
   
 }
 

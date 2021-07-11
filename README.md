@@ -68,7 +68,7 @@ server <- function(input, output) {
   observeEvent(user(), {
     observe(print(user()))
     # ... put your modules here
-  })
+  }, ignoreInit = T)
   
 }
 
