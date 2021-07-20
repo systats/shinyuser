@@ -156,7 +156,7 @@ login_server <- function(input, output, session, users){
    
   observe({
     req(users())
-    js$getcookie()
+    shinyjs::js$getcookie()
     
     if(is.null(input$jscookie)) return(NULL)
     
@@ -191,7 +191,7 @@ login_server <- function(input, output, session, users){
       if(known$status == 1){
         print(glue::glue("Successfully logged in"))
         status(known$name[1])
-        js$setcookie(known$name[1])
+        shinyjs::js$setcookie(known$name[1])
       }
     } else {
       print(glue::glue("Some input error"))
@@ -204,7 +204,7 @@ login_server <- function(input, output, session, users){
     # reset session cookies
     print(glue::glue("Logged out"))
     status('')
-    js$rmcookie()
+    shinyjs::js$rmcookie()
     # shinyjs::runjs("history.go(0);")
     # shinyjs::runjs("$('.dimmer').dimmer('show');")
   })
