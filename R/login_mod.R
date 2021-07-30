@@ -111,10 +111,6 @@ login_ui <- function(id, head = NULL){
   )
 }
 
-### https://betterprogramming.pub/21-best-practices-for-handling-passwords-in-web-applications-7b2d7a66378f
-# Favor Long Passwords Over Difficult Ones: Easy+Long > Difficult + Short
-# Text message, One time password
-
 #' check_credentials
 #' @export 
 check_credentials <- function(users, .user, .pw){
@@ -187,7 +183,6 @@ login_server <- function(input, output, session, users, delay = 5){
       print(glue::glue("Some input error"))
       shinyjs::runjs("$('#user-checkin').transition('shake');")
       next_attempt(Sys.time() + delay)
-      #status('')
     }
   })
   
@@ -195,8 +190,6 @@ login_server <- function(input, output, session, users, delay = 5){
     # reset session cookies
     print(glue::glue("Logged out"))
     shinyjs::js$rmcookie()
-    #shinyjs::runjs("history.go(0);")
-    # status('')
     # shinyjs::runjs("history.go(0);")
     # shinyjs::runjs("$('.dimmer').dimmer('show');")
   })
