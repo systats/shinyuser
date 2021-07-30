@@ -14,13 +14,17 @@ modularized solution.
 Features:
 
 1.  User’s credentials are saved wherever you want.
-2.  Clean and secure landing page.
-3.  Stay logged in after refresh ([taken from
+2.  Clean landing page that overlays any arbitrary layout
+3.  Increasing security features
+    -   delayed login trialing (5 sec)
+    -   `openssl` for hourly session cookies
+    -   `bcrypt` for password encrypton
+4.  Stay logged in after refresh ([taken from
     calligross](https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189)).
-4.  Build with
+5.  Build with
     [shiny.semantic](https://github.com/Appsilon/shiny.semantic) for
     clean design patterns
-5.  Tested with shinyapps.io
+6.  Tested with shinyapps.io
 
 Minimal example of `shinyuser`
 
@@ -31,6 +35,8 @@ library(shinyjs)
 library(shiny.semantic)
 library(semantic.dashboard)
 library(shinyuser)
+library(openssl)
+library(bcrypt)
 
 ui <- function(){
   dashboardPage(
@@ -51,7 +57,7 @@ ui <- function(){
     ),
     dashboardBody(
       div(class = "sixteen wide column",
-        "Some secret content"
+        "Something great content"
       )
     )
   )
@@ -60,16 +66,17 @@ ui <- function(){
 server <- function(input, output) {
   
   users <- reactive({ 
-    tibble(name = "admin", pw  = "test")
+    ### demo data frame
+    dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test")) %>% 
+      dplyr::mutate(hash = purrr::map_chr(name, ~create_cookie(.x)))
   })
   
   user <- callModule(login_server, "user", users)
-  
+
+  ### content starts to load first if user is provided
   observeEvent(user(), {
     observe(print(user()))
-    # ... put your modules here
-  }, ignoreInit = T)
-  
+  })
 }
 
 shinyApp(ui, server)

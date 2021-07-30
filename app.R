@@ -12,6 +12,11 @@ library(shinyjs)
 library(semantic.dashboard)
 library(googlesheets4)
 library(gargle)
+library(bcrypt)
+
+# remotes::install_github("rstudio/reactlog")
+# library(reactlog)
+# reactlog_enable()
 
 # # designate project-specific cache
 # options(gargle_oauth_cache = ".secrets")
@@ -20,10 +25,10 @@ library(gargle)
 # # trigger auth on purpose to store a token in the specified cache
 # # a broswer will be opened
 # googlesheets4::sheets_auth()
-sheets_auth(
-  cache = ".secrets",
-  email = "symonroth@gmail.com"
-)
+# sheets_auth(
+#   cache = ".secrets",
+#   email = "symonroth@gmail.com"
+# )
 
 dir("R", full.names = T) %>% purrr::walk(source)
 
@@ -55,16 +60,19 @@ ui <- function(){
 server <- function(input, output) {
   
   users <- reactive({ 
-    user_sheet <- "https://docs.google.com/spreadsheets/d/1l-lHBPO9_JaI5aAUyTQ0Dt6YYY7O2SzTYFLbAHjCxlg/edit?usp=sharing"
-    googlesheets4::read_sheet(user_sheet) 
+    # user_sheet <- "https://docs.google.com/spreadsheets/d/1l-lHBPO9_JaI5aAUyTQ0Dt6YYY7O2SzTYFLbAHjCxlg/edit?usp=sharing"
+    # googlesheets4::read_sheet(user_sheet) %>% 
+    dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test")) %>% 
+      dplyr::mutate(hash = purrr::map_chr(name, ~create_cookie(.x)))
   })
   
   user <- callModule(login_server, "user", users)
 
   observeEvent(user(), {
     observe(print(user()))
-  }, ignoreInit = T) # , ignoreInit = T is important so that no content is displayed before auth
-  
+  })
 }
 
 shinyApp(ui, server)
+
+# reactlog::reactlog_show()
