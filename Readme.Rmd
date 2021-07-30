@@ -24,7 +24,7 @@ Features:
 2. Clean landing page that overlays any arbitrary layout
 3. Increasing security features
     + delayed login trialing (5 sec)
-    + `openssl` for hourly session cookies
+    + `openssl` for daily session cookies
     + `bcrypt` for password encrypton
 3. Stay logged in after refresh ([taken from calligross](https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189)).
 4. Build with [shiny.semantic](https://github.com/Appsilon/shiny.semantic) for clean design patterns
@@ -71,14 +71,13 @@ ui <- function(){
 server <- function(input, output) {
   
   users <- reactive({ 
-    ### demo data frame
     dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test")) %>% 
-      dplyr::mutate(hash = purrr::map_chr(name, ~create_cookie(.x)))
+      ### use the user name and hashed password to create a 24h session cookie
+      dplyr::mutate(hash = purrr::map2_chr(name, pw, ~create_cookie(.x, .y)))
   })
   
   user <- callModule(login_server, "user", users)
 
-  ### content starts to load first if user is provided
   observeEvent(user(), {
     observe(print(user()))
   })

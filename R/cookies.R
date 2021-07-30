@@ -23,7 +23,7 @@ js_cookies <- '
 
 #' create_cookie
 #' @export
-create_cookie <- function(user){
-  timestamp <- lubridate::ceiling_date(lubridate::now(), "1 hour")
-  openssl::sha1(paste(Sys.getenv("CRYPT_KEY"), user, timestamp, sep = "_"))
+create_cookie <- function(user, pw){
+  timestamp <- lubridate::ceiling_date(lubridate::now(), "1 day")
+  openssl::sha1(paste(user, pw, timestamp, sep = "_"))
 }

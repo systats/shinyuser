@@ -63,7 +63,8 @@ server <- function(input, output) {
     # user_sheet <- "https://docs.google.com/spreadsheets/d/1l-lHBPO9_JaI5aAUyTQ0Dt6YYY7O2SzTYFLbAHjCxlg/edit?usp=sharing"
     # googlesheets4::read_sheet(user_sheet) %>% 
     dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test")) %>% 
-      dplyr::mutate(hash = purrr::map_chr(name, ~create_cookie(.x)))
+      ### use the user name and hashed password to create a 24h session cookie
+      dplyr::mutate(hash = purrr::map2_chr(name, pw, ~create_cookie(.x, .y)))
   })
   
   user <- callModule(login_server, "user", users)
