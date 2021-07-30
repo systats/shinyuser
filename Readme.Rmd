@@ -4,7 +4,7 @@ output: github_document
 ---
 
 
-```{r, echo = FALSE, results='asis', eval = T, eval = T}
+```{r, echo = FALSE, results='asis', eval = T, eval = T, message=F, warning=F}
 library(badger)
 git_repo <- "systats/shinyuser"
 cat(

@@ -1,8 +1,6 @@
 shinyuser
 ================
 
-    ## ✓ Setting active project to '/Users/simonroth/Dropbox/trading/shinyuser'
-
 [![](https://img.shields.io/github/languages/code-size/systats/shinyuser.svg)](https://github.com/systats/shinyuser)
 [![](https://img.shields.io/github/last-commit/systats/shinyuser.svg)](https://github.com/systats/shinyuser/commits/master)
 [![](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
