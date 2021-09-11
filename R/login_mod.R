@@ -170,7 +170,7 @@ login_server <- function(input, output, session, users, delay = 5){
     if(Sys.time() < next_attempt()){
       print(glue::glue("Login time violation"))
       return(NULL)
-    } 
+    }
     
     known <- check_credentials(users(), input$name, input$pw)
     

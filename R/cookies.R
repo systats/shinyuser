@@ -1,4 +1,4 @@
-# https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189
+#' https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189
 #' js_cookies
 #' @export 
 js_cookies <- '
@@ -24,6 +24,6 @@ js_cookies <- '
 #' create_cookie
 #' @export
 create_cookie <- function(user, pw){
-  timestamp <- lubridate::ceiling_date(lubridate::now(), "1 day")
-  openssl::sha1(paste(user, pw, timestamp, sep = "_"))
+  # timestamp <- lubridate::ceiling_date(lubridate::now(), "1 day")
+  openssl::sha1(paste(user, pw, sep = "_"))
 }
