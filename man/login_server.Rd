@@ -4,7 +4,7 @@
 \alias{login_server}
 \title{login_server}
 \usage{
-login_server(input, output, session, users)
+login_server(input, output, session, users, delay = 5)
 }
 \description{
 login_server
