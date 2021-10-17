@@ -6,14 +6,14 @@ output: github_document
 
 ```{r, echo = FALSE, results='asis', eval = T, eval = T, message=F, warning=F}
 library(badger)
-git_repo <- "systats/shinyuser"
-cat(
-  #badge_travis(git_repo),
-  #"[![Codecov test coverage](https://codecov.io/gh/favstats/peRspective/branch/master/graph/badge.svg)](https://codecov.io/gh/favstats/peRspective?branch=master)",
-	badge_code_size(git_repo),
-	badge_last_commit(git_repo),
-  badge_lifecycle("experimental", "blue")
-)
+# git_repo <- "systats/shinyuser"
+# cat(
+#   #badge_travis(git_repo),
+#   #"[![Codecov test coverage](https://codecov.io/gh/favstats/peRspective/branch/master/graph/badge.svg)](https://codecov.io/gh/favstats/peRspective?branch=master)",
+# 	badge_code_size(git_repo),
+# 	badge_last_commit(git_repo),
+#   badge_lifecycle("experimental", "blue")
+# )
 ```
 
 This is a demonstration of how to implement user authentication directly in a shiny app. The core idea is to provide a simple, secure and modularized solution.  
@@ -22,11 +22,11 @@ Features:
 
 1. User's credentials are saved wherever you want.
 2. Clean landing page that overlays any arbitrary layout
-3. Increasing security features
+3. Basic security features
     + delayed login trialing (5 sec)
-    + `openssl` for daily session cookies
+    <!-- + `openssl` for daily session cookies -->
     + `bcrypt` for password encrypton
-3. Stay logged in after refresh ([taken from calligross](https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189)).
+<!-- 3. Stay logged in after refresh ([taken from calligross](https://gist.github.com/calligross/e779281b500eb93ee9e42e4d72448189)). -->
 4. Build with [shiny.semantic](https://github.com/Appsilon/shiny.semantic) for clean design patterns
 5. Tested with shinyapps.io
 
@@ -48,7 +48,7 @@ ui <- function(){
     dashboardHeader(
       inverted = T,
       login_ui("user"),
-      div(class = "ui button action-button", id = "user-logout", 
+      div(class = "ui circular icon button action-button", id = "user-logout", 
         icon("power off")
       )
     ),
@@ -71,9 +71,7 @@ ui <- function(){
 server <- function(input, output) {
   
   users <- reactive({ 
-    dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test")) %>% 
-      ### use the user name and hashed password to create a 24h session cookie
-      dplyr::mutate(hash = purrr::map2_chr(name, pw, ~create_cookie(.x, .y)))
+    dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test"))
   })
   
   user <- callModule(login_server, "user", users)

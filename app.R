@@ -30,14 +30,16 @@ library(bcrypt)
 #   email = "symonroth@gmail.com"
 # )
 
+
 dir("R", full.names = T) %>% purrr::walk(source)
 
 ui <- function(){
   dashboardPage(
     dashboardHeader(
       inverted = T,
-      login_ui("user"),
-      div(class = "ui button action-button", id = "user-logout", 
+      login_ui("user", test = F),
+               #tail = a(href="https://www.google.de", target="_blank", "Forgot your password?")),
+      div(class = "ui circular icon button action-button", id = "user-logout", 
         icon("power off")
       )
     ),
@@ -62,9 +64,7 @@ server <- function(input, output) {
   users <- reactive({ 
     # user_sheet <- "https://docs.google.com/spreadsheets/d/1l-lHBPO9_JaI5aAUyTQ0Dt6YYY7O2SzTYFLbAHjCxlg/edit?usp=sharing"
     # googlesheets4::read_sheet(user_sheet) %>% 
-    dplyr::tibble(name = "admin", pw = bcrypt::hashpw("test")) %>% 
-      ### use the user name and hashed password to create a 24h session cookie
-      dplyr::mutate(hash = purrr::map2_chr(name, pw, ~create_cookie(.x, .y)))
+    dplyr::tibble(name = "admin", email = name, pw = bcrypt::hashpw("test"))
   })
   
   user <- callModule(login_server, "user", users)
@@ -75,5 +75,4 @@ server <- function(input, output) {
 }
 
 shinyApp(ui, server)
-
 # reactlog::reactlog_show()

@@ -1,64 +1,21 @@
 #' form_login
 #' @export 
-form_login <- function(id){
+form_login <- function(id, test){
   ns <- NS(id)
   div(class = "ui form",
     div(class = "field",
       div(class = "ui left icon input", id = ns("frame_user"),
         HTML('<i class="ui user icon"></i>'),
-        shiny::tags$input(id = ns("name"), type = "text", value = "" , placeholder = "Username")
+        shiny::tags$input(id = ns("name"), type = "text", value = ifelse(test, "admin", "") , placeholder = "Username or Email")
       )
     ),
     div(class = "field",
       div(class = "ui left icon input", id = ns("frame_pw"),
         HTML('<i class="ui key icon"></i>'),
-        shiny::tags$input(id = ns("pw"), type = "password", value = "" , placeholder = "Password")
+        shiny::tags$input(id = ns("pw"), type = "password", value = ifelse(test, "test", "") , placeholder = "Password")
       )
     ),
     div(class = "ui fluid button action-button", id = ns("login"), HTML('<i class="ui unlock alternate icon"></i>'))
-  )
-}
-
-#' form_signin
-#' @export 
-form_signin <- function(id){
-  ns <- NS(id)
-  div(class = "ui form",
-    div(class = "field",
-      div(class = "ui left icon input",
-        HTML('<i class="ui user icon"></i>'),
-        shiny::tags$input(id = ns("user"), type = "text", value="" , placeholder="name")
-      )
-    ),
-    div(class = "field",
-      div(class = "ui left icon input",
-        HTML('<i class="ui key icon"></i>'),
-        shiny::tags$input(id = ns("pw1"), type = "password", value = "" , placeholder = "Secret")
-      )
-    ),
-    div(class = "field",
-      div(class = "ui left icon input",
-        HTML('<i class="ui key icon"></i>'),
-        shiny::tags$input(id = ns("pw2"), type = "password", value = "" , placeholder = "Secret")
-      )
-    ),
-    div(class = "ui fluid button action-button", id = ns("signin"), HTML('<i class="ui sign in icon"></i>'))
-  )
-}
-
-#' form_recover
-#' @export 
-form_recover <- function(id){
-  ns <- NS(id)
-  div(class = "ui form",
-    div(class = "field",
-      label("Send an email to get new creds"),
-      div(class="ui left icon input",
-        HTML('<i class="ui envelop icon"></i>'),
-        shiny::tags$input(id = ns("email"), type = "text", value = "" , placeholder = "name")
-      )
-    ),
-    div(class = "ui fluid button action-button", id = ns("recover"), HTML('<i class="ui undo alternate icon"></i>'))
   )
 }
 
@@ -70,9 +27,10 @@ clickjs <- '$(document).keyup(function(event) {
     }
 });'
 
+
 #' login_ui
 #' @export 
-login_ui <- function(id, head = NULL){
+login_ui <- function(id, head = NULL, tail = NULL, test = F){
   
   ns <- NS(id)
   
@@ -89,7 +47,7 @@ login_ui <- function(id, head = NULL){
     hidden(
       div(class = "ui inverted active page dimmer", id = ns("checkin"), 
         style = "background-color:#e0e1e2;",
-        div(class = "ui card", align = "left", #style = "margin-top: 10%;",
+        div(class = "ui card", align = "left", style = "width:400px;",
           div(class = "content",
             head,
             div(class="ui accordion", id = "checkin_options",
@@ -98,7 +56,15 @@ login_ui <- function(id, head = NULL){
                 "Login"
               ),
               div(class="active content", id = "default_content",
-                form_login(id)
+                form_login(id, test = test)
+              ),
+              
+              div(class = "title", id = "title2",
+                  HTML('<i class="ui dropdown icon"></i>'),
+                  "Forgot your password?"
+              ),
+              div(class="content", id = "content2",
+                 recovery_ui(ns("recovery"))
               )
             )
           )
@@ -130,82 +96,43 @@ check_credentials <- function(users, .user, .pw){
 #' @export
 login_server <- function(input, output, session, users, delay = 5){
   
-  status <- reactiveVal("")
-  next_attempt <- reactiveVal(Sys.time())
-   
+  callModule(recovery_server, "recovery")
+  
   observe({
-    req(users())
-    shinyjs::js$getcookie()
-    
-    if(is.null(input$jscookie)) return(NULL)
-    
-    known <- dplyr::mutate(dplyr::filter(users(), hash == input$jscookie), status = 1)
-    
-    if(nrow(known) > 0) {
-      
-      if(isolate(status()) == known$hash[1]){
-        cat(".")
-      } else {
-        print(glue::glue("Found valid cookie: {input$jscookie}"))
-        isolate(status(input$jscookie))
-        
-        shinyjs::hide("checkin")
-        shinyjs::hide("buffer")
-      }
-    
-    } else {
-      
-      print(glue::glue("No valid cookie found"))
-      isolate(status(''))
-      shinyjs::show("checkin")
-      print(glue::glue("Show Login Panel"))
-      
-    }
+    shinyjs::show("buffer")
+    shinyjs::show("checkin")
   })
   
-  observeEvent(input$login, {
+  user <- eventReactive(input$login, {
+    req(users())
     
-    print(glue::glue("Checking Credentials"))
+    known <- dplyr::mutate(dplyr::filter(users(), 
+                                         (name == input$name | email == input$name), 
+                                         bcrypt::checkpw(password = input$pw, hash = pw)), 
+                           status = 1)
+
     
-    if(Sys.time() < next_attempt()){
-      print(glue::glue("Login time violation"))
+    glimpse(known)
+
+    if(nrow(known) == 0){
+      shinyjs::addCssClass("login", "disabled")
+      shinyjs::delay(5000, shinyjs::removeCssClass("login", "disabled"))
+      shinyjs::runjs("$('#user-checkin').transition('shake');")
       return(NULL)
     }
     
-    known <- check_credentials(users(), input$name, input$pw)
+    shinyjs::hide("checkin")
+    shinyjs::hide("buffer")
     
-    if(!is.null(known)){
-      if(known$status == 1){
-        print(glue::glue("Successfully logged in"))
-        shinyjs::js$setcookie(known$hash[1])
-      }
-    } else {
-      print(glue::glue("Some input error"))
-      shinyjs::runjs("$('#user-checkin').transition('shake');")
-      next_attempt(Sys.time() + delay)
-    }
+    return(known)
   })
+  
   
   observeEvent( input$logout ,{
-    # reset session cookies
     print(glue::glue("Logged out"))
-    shinyjs::js$rmcookie()
-    # shinyjs::runjs("history.go(0);")
-    # shinyjs::runjs("$('.dimmer').dimmer('show');")
-  })
-  
-  
-  out <- reactive({
-    req(status())
-    # only return data if valid login otherwise NULL
-    if(status() != "") {
-      print(glue::glue("Return user data"))
-      return(isolate(users()) %>% dplyr::filter(hash == status()))
-    } else {
-      print(glue::glue("Stop process"))
-      return(NULL)
-    }
+    shinyjs::runjs("history.go(0);")
   })
 
-  return(out)
+
+  return(user)
 }
