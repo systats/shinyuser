@@ -85,3 +85,10 @@ shinyApp(ui, server)
 ```
 
 <!-- <img src = "demo.gif"> <!-- width = "80%" --> 
+
+
+```{r}
+devtools::document()
+devtools::install()
+```
+

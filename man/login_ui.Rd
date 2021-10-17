@@ -4,7 +4,7 @@
 \alias{login_ui}
 \title{login_ui}
 \usage{
-login_ui(id, head = NULL)
+login_ui(id, head = NULL, tail = NULL, test = F)
 }
 \description{
 login_ui
