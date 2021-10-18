@@ -92,3 +92,27 @@ devtools::document()
 devtools::install()
 ```
 
+
+
+```{r}
+users <- dplyr::tibble(name = c("admin", "admin2"), email = name, pw = bcrypt::hashpw("test")) %>% glimpse
+
+.name = "admin"
+.email = ""
+.pw = "test"
+
+bcrypt::checkpw(password = .pw, hash = users$pw[2])
+
+known <- users %>% 
+  #glimpse %>% 
+  dplyr::filter(name == .name | email == .email) %>% 
+  # glimpse %>% 
+  dplyr::filter(bcrypt::checkpw(password = .pw, hash = pw)) %>% 
+  glimpse
+            # & #(), 
+            #
+            )
+
+glimpse(known)
+```
+

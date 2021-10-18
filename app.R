@@ -30,14 +30,13 @@ library(bcrypt)
 #   email = "symonroth@gmail.com"
 # )
 
-
 dir("R", full.names = T) %>% purrr::walk(source)
 
 ui <- function(){
   dashboardPage(
     dashboardHeader(
       inverted = T,
-      login_ui("user", test = F),
+      login_ui("user", test = T),
                #tail = a(href="https://www.google.de", target="_blank", "Forgot your password?")),
       div(class = "ui circular icon button action-button", id = "user-logout", 
         icon("power off")
@@ -64,7 +63,7 @@ server <- function(input, output) {
   users <- reactive({ 
     # user_sheet <- "https://docs.google.com/spreadsheets/d/1l-lHBPO9_JaI5aAUyTQ0Dt6YYY7O2SzTYFLbAHjCxlg/edit?usp=sharing"
     # googlesheets4::read_sheet(user_sheet) %>% 
-    dplyr::tibble(name = "admin", email = name, pw = bcrypt::hashpw("test"))
+    dplyr::tibble(name = c("admin", "admin2"), email = name, pw = bcrypt::hashpw("test")) %>% glimpse
   })
   
   user <- callModule(login_server, "user", users)

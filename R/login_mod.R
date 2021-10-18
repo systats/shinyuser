@@ -77,20 +77,6 @@ login_ui <- function(id, head = NULL, tail = NULL, test = F){
   )
 }
 
-#' check_credentials
-#' @export 
-check_credentials <- function(users, .user, .pw){
-  
-  trial <- dplyr::filter(users, name == .user & pw == bcrypt::hashpw(.pw, pw))
-  
-
-  if(nrow(trial) == 1) {
-    session <- dplyr::mutate(trial, status = 1)
-  } else {
-    session <- NULL
-  }
-  return(session)
-}
 
 #' login_server
 #' @export
@@ -106,13 +92,15 @@ login_server <- function(input, output, session, users, delay = 5){
   user <- eventReactive(input$login, {
     req(users())
     
-    known <- dplyr::mutate(dplyr::filter(users(), 
-                                         (name == input$name | email == input$name), 
-                                         bcrypt::checkpw(password = input$pw, hash = pw)), 
-                           status = 1)
-
     
-    glimpse(known)
+    # glimpse(users())
+    
+    known <- users() %>% 
+      dplyr::filter(name == input$name | email == input$name) %>% 
+      dplyr::filter(bcrypt::checkpw(password = input$pw, hash = pw)) %>% 
+      dplyr::mutate(status = 1)
+    
+    # glimpse(known)
 
     if(nrow(known) == 0){
       shinyjs::addCssClass("login", "disabled")
